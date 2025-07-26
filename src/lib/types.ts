@@ -22,7 +22,9 @@ export type ItemType =
   | 'lightning'
   | 'kamek'
   | 'dash-food'
-  | 'coin-shell';
+  | 'coin-shell'
+  | 'player'
+  | 'enemy';
 
 export interface CanvasItem {
   id: number;
