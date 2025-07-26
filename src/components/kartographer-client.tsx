@@ -110,11 +110,22 @@ export function KartographerClient() {
       const reader = new FileReader();
       reader.onload = (event) => {
         const imageUrl = event.target?.result as string;
-        const layoutName = file.name.replace(/\.[^/.]+$/, ""); // Use file name as layout name
-        const newLayout = { name: layoutName, image: imageUrl, hint: "custom" };
-
+        let layoutName = file.name.replace(/\.[^/.]+$/, ""); // Use file name as layout name
+        
         setLayouts(prev => {
+          // Ensure layout name is unique
+          const existingNames = prev.map(l => l.name);
+          let counter = 1;
+          let newLayoutName = layoutName;
+          while(existingNames.includes(newLayoutName)) {
+            newLayoutName = `${layoutName} (${counter})`;
+            counter++;
+          }
+          layoutName = newLayoutName;
+
+          const newLayout = { name: layoutName, image: imageUrl, hint: "custom" };
           const newLayouts = [...prev, newLayout];
+
           try {
             const currentCustomLayouts = JSON.parse(localStorage.getItem("kartographer-custom-layouts") || "[]");
             const updatedCustomLayouts = [...currentCustomLayouts, newLayout];
@@ -122,11 +133,13 @@ export function KartographerClient() {
           } catch(error) {
             console.error("Failed to save custom layout to localStorage", error);
           }
+          
+          setSelectedLayout(imageUrl);
+          setItems([]); // Clear items on new layout
+          toast({ title: "Custom layout loaded and saved!" });
+
           return newLayouts;
         });
-        
-        setSelectedLayout(imageUrl);
-        toast({ title: "Custom layout loaded and saved!" });
       };
       reader.readAsDataURL(file);
     } else {
@@ -415,3 +428,4 @@ export function KartographerClient() {
     
 
     
+
