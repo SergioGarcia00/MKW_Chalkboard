@@ -52,7 +52,7 @@ const defaultLayouts = [
   { name: "Rainbow Road", image: "https://placehold.co/1024x768.png", hint: "rainbow space" },
   { name: "Bowser's Castle", image: "https://placehold.co/1024x768.png", hint: "lava castle" },
   { name: "DK Jungle", image: "https://placehold.co/1024x768.png", hint: "jungle ruins" },
-  { name: "200px-MKWorld_MarioCircuit_Map", image: "https://placehold.co/1024x768.png", hint: "race track" },
+  { name: "Mario Circuit", image: "https://placehold.co/1024x768.png", hint: "race track" },
 ];
 
 const ITEM_SIZE = 48;
@@ -355,6 +355,34 @@ export function KartographerClient() {
           <p className="text-center text-sm text-muted-foreground mb-4">Build your dream track!</p>
           <Separator />
           <div className="flex-grow overflow-y-auto py-4 pr-2">
+            <Card className="mb-4 bg-transparent border-primary/30">
+              <CardHeader className="p-4">
+                <CardTitle className="text-lg">Track Layouts</CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 pt-0 space-y-4">
+                <Select value={selectedLayout} onValueChange={handleLayoutChange}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Choose a layout" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {layouts.map(layout => (
+                      <SelectItem key={layout.name} value={layout.image}>{layout.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                 <Input
+                  type="file"
+                  ref={fileInputRef}
+                  className="hidden"
+                  accept="image/png, image/jpeg, image/webp"
+                  onChange={handleImageUpload}
+                />
+                <Button variant="outline" className="w-full" onClick={() => fileInputRef.current?.click()}>
+                  <Upload className="mr-2 h-4 w-4" />
+                  Import Custom
+                </Button>
+              </CardContent>
+            </Card>
              <Card className="mb-4 bg-transparent border-primary/30">
               <CardHeader className="p-4">
                 <CardTitle className="text-lg">Tools</CardTitle>
@@ -391,35 +419,6 @@ export function KartographerClient() {
                       </div>
                     </div>
                   )}
-              </CardContent>
-            </Card>
-
-            <Card className="mb-4 bg-transparent border-primary/30">
-              <CardHeader className="p-4">
-                <CardTitle className="text-lg">Track Layouts</CardTitle>
-              </CardHeader>
-              <CardContent className="p-4 pt-0 space-y-4">
-                <Select value={selectedLayout} onValueChange={handleLayoutChange}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Choose a layout" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {layouts.map(layout => (
-                      <SelectItem key={layout.name} value={layout.image}>{layout.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                 <Input
-                  type="file"
-                  ref={fileInputRef}
-                  className="hidden"
-                  accept="image/png, image/jpeg, image/webp"
-                  onChange={handleImageUpload}
-                />
-                <Button variant="outline" className="w-full" onClick={() => fileInputRef.current?.click()}>
-                  <Upload className="mr-2 h-4 w-4" />
-                  Import Custom
-                </Button>
               </CardContent>
             </Card>
             <Card className="bg-transparent border-primary/30">
