@@ -1,3 +1,9 @@
+import { KartographerClient } from "@/components/kartographer-client";
+
 export default function Home() {
-  return <></>;
+  return (
+    <main>
+      <KartographerClient />
+    </main>
+  );
 }
