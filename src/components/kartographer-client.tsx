@@ -17,16 +17,16 @@ import Image from "next/image";
 
 const AVAILABLE_ITEMS = [
   { type: "item-box" as ItemType, name: "? Block", emoji: "❓" },
-  { type: "banana" as ItemType, name: "Banana", emoji: "🍌" },
   { type: "mushroom" as ItemType, name: "Mushroom", emoji: "🍄" },
   { type: "golden-mushroom" as ItemType, name: "Golden Mushroom", emoji: "🌟" },
   { type: "mega-mushroom" as ItemType, name: "Mega Mushroom", emoji: "💪" },
   { type: "shell" as ItemType, name: "Green Shell", emoji: "🐢" },
   { type: "red-shell" as ItemType, name: "Red Shell", emoji: "🔴" },
   { type: "blue-shell" as ItemType, name: "Blue Shell", emoji: "🔵" },
+  { type: "coin-shell" as ItemType, name: "Coin Shell", emoji: "💰" },
   { type: "fire-flower" as ItemType, name: "Fire Flower", emoji: "🔥" },
   { type: "ice-flower" as ItemType, name: "Ice Flower", emoji: "❄️" },
-  { type: "boomerang-flower" as ItemType, name: "Boomerang", emoji: "🪃" },
+  { type: "boomerang-flower" as ItemType, name: "Boomerang Flower", emoji: "🪃" },
   { type: "bullet-bill" as ItemType, name: "Bullet Bill", emoji: "🚀" },
   { type: "bob-omb" as ItemType, name: "Bob-omb", emoji: "💣" },
   { type: "hammer" as ItemType, name: "Hammer", emoji: "🔨" },
