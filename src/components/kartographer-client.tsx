@@ -11,7 +11,7 @@ import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Download, Save, FolderOpen, Trash2, RotateCw, Scaling, Upload, Pen, MousePointer, Pencil, Minus } from "lucide-react";
+import { Download, Save, FolderOpen, Trash2, RotateCw, Scaling, Upload, Pen, MousePointer, Pencil, Minus, Eraser } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { ItemBoxIcon } from "./icons/item-box-icon";
@@ -332,6 +332,12 @@ export function KartographerClient() {
     setLines([]);
   };
 
+  const clearCanvas = () => {
+    setItems([]);
+    setLines([]);
+    toast({ title: "Canvas Cleared", description: "Ready for a fresh start!" });
+  };
+
   useEffect(() => {
     loadLayout();
   }, []);
@@ -359,6 +365,48 @@ export function KartographerClient() {
           <div className="flex-grow overflow-y-auto py-4 pr-2">
             <Card className="mb-4 bg-transparent border-primary/30">
               <CardHeader className="p-4">
+                <CardTitle className="text-lg">Tools</CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 pt-0 space-y-4">
+                 <div className="grid grid-cols-2 gap-2">
+                    <Button variant={mode === 'place' ? 'default' : 'outline'} onClick={() => setMode('place')}>
+                      <MousePointer className="mr-2"/> Place
+                    </Button>
+                    <Button variant={mode === 'draw' ? 'default' : 'outline'} onClick={() => setMode('draw')}>
+                      <Pen className="mr-2"/> Draw
+                    </Button>
+                  </div>
+                  <Button variant="outline" className="w-full" onClick={clearCanvas}>
+                    <Eraser className="mr-2 h-4 w-4" />
+                    Clear Canvas
+                  </Button>
+                   {mode === 'draw' && (
+                    <div className="space-y-4 pt-4 border-t border-primary/20">
+                      <div>
+                        <label className="text-sm font-medium">Color</label>
+                        <Input type="color" value={drawColor} onChange={(e) => setDrawColor(e.target.value)} className="p-1 h-10" />
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium">Style</label>
+                        <Select value={strokeDash} onValueChange={setStrokeDash}>
+                          <SelectTrigger><SelectValue/></SelectTrigger>
+                          <SelectContent>
+                            {strokeStyles.map(style => (
+                              <SelectItem key={style.value} value={style.value}>{style.name}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium">Thickness: {strokeWidth}px</label>
+                        <Slider value={[strokeWidth]} onValueChange={([val]) => setStrokeWidth(val)} min={1} max={50} step={1} />
+                      </div>
+                    </div>
+                  )}
+              </CardContent>
+            </Card>
+            <Card className="mb-4 bg-transparent border-primary/30">
+              <CardHeader className="p-4">
                 <CardTitle className="text-lg">Track Layouts</CardTitle>
               </CardHeader>
               <CardContent className="p-4 pt-0 space-y-4">
@@ -383,44 +431,6 @@ export function KartographerClient() {
                   <Upload className="mr-2 h-4 w-4" />
                   Import Custom
                 </Button>
-              </CardContent>
-            </Card>
-            <Card className="mb-4 bg-transparent border-primary/30">
-              <CardHeader className="p-4">
-                <CardTitle className="text-lg">Tools</CardTitle>
-              </CardHeader>
-              <CardContent className="p-4 pt-0 space-y-4">
-                 <div className="grid grid-cols-2 gap-2">
-                    <Button variant={mode === 'place' ? 'default' : 'outline'} onClick={() => setMode('place')}>
-                      <MousePointer className="mr-2"/> Place
-                    </Button>
-                    <Button variant={mode === 'draw' ? 'default' : 'outline'} onClick={() => setMode('draw')}>
-                      <Pen className="mr-2"/> Draw
-                    </Button>
-                  </div>
-                   {mode === 'draw' && (
-                    <div className="space-y-4 pt-4 border-t border-primary/20">
-                      <div>
-                        <label className="text-sm font-medium">Color</label>
-                        <Input type="color" value={drawColor} onChange={(e) => setDrawColor(e.target.value)} className="p-1 h-10" />
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium">Style</label>
-                        <Select value={strokeDash} onValueChange={setStrokeDash}>
-                          <SelectTrigger><SelectValue/></SelectTrigger>
-                          <SelectContent>
-                            {strokeStyles.map(style => (
-                              <SelectItem key={style.value} value={style.value}>{style.name}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium">Thickness: {strokeWidth}px</label>
-                        <Slider value={[strokeWidth]} onValueChange={([val]) => setStrokeWidth(val)} min={1} max={50} step={1} />
-                      </div>
-                    </div>
-                  )}
               </CardContent>
             </Card>
             <Card className="bg-transparent border-primary/30">
