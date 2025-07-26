@@ -32,3 +32,11 @@ export interface CanvasItem {
   rotation: number;
   scale: number;
 }
+
+export interface CanvasLine {
+  id: number;
+  points: { x: number; y: number }[];
+  color: string;
+  strokeWidth: number;
+  strokeDasharray: string;
+}

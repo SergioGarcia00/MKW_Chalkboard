@@ -4,19 +4,20 @@
 import React, { useState, useRef, useEffect, useCallback, DragEvent, ChangeEvent } from "react";
 import html2canvas from "html2canvas";
 import { useToast } from "@/hooks/use-toast";
-import type { CanvasItem, ItemType } from "@/lib/types";
+import type { CanvasItem, ItemType, CanvasLine } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Download, Save, FolderOpen, Trash2, RotateCw, Scaling, Upload } from "lucide-react";
+import { Download, Save, FolderOpen, Trash2, RotateCw, Scaling, Upload, Pen, MousePointer, Pencil, Minus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { ItemBoxIcon } from "./icons/item-box-icon";
 import { GoldenMushroomIcon } from "./icons/golden-mushroom-icon";
 import { MegaMushroomIcon } from "./icons/mega-mushroom-icon";
+import { Slider } from "./ui/slider";
 
 
 const AVAILABLE_ITEMS = [
@@ -58,9 +59,18 @@ const ITEM_SIZE = 48;
 
 export function KartographerClient() {
   const [items, setItems] = useState<CanvasItem[]>([]);
+  const [lines, setLines] = useState<CanvasLine[]>([]);
   const [layouts, setLayouts] = useState(defaultLayouts);
   const [selectedLayout, setSelectedLayout] = useState(layouts[0].image);
   const [selectedItem, setSelectedItem] = useState<number | null>(null);
+  const [mode, setMode] = useState<'place' | 'draw'>('place');
+  const [isDrawing, setIsDrawing] = useState(false);
+  
+  const [drawColor, setDrawColor] = useState("#000000");
+  const [strokeWidth, setStrokeWidth] = useState(5);
+  const [strokeDash, setStrokeDash] = useState("none");
+
+
   const [interaction, setInteraction] = useState<{
     type: 'move' | 'scale' | 'rotate' | null;
     startEvent: MouseEvent | null;
@@ -76,7 +86,6 @@ export function KartographerClient() {
       const savedCustomLayoutsJSON = localStorage.getItem("kartographer-custom-layouts");
       if (savedCustomLayoutsJSON) {
         const customLayouts = JSON.parse(savedCustomLayoutsJSON);
-        // Use a Map to ensure unique layout names, preventing key conflicts.
         const combinedLayouts = new Map();
         defaultLayouts.forEach(layout => combinedLayouts.set(layout.name, layout));
         customLayouts.forEach((layout: { name: string, image: string, hint: string }) => combinedLayouts.set(layout.name, layout));
@@ -133,17 +142,21 @@ export function KartographerClient() {
   };
 
   const handleDragStart = (e: DragEvent, itemType: ItemType) => {
+    if (mode !== 'place') return;
     e.dataTransfer.setData("application/kartographer-item", itemType);
     e.dataTransfer.effectAllowed = "copy";
   };
 
   const handleDragOver = (e: DragEvent) => {
     e.preventDefault();
-    e.dataTransfer.dropEffect = "copy";
+    if(mode === 'place') {
+      e.dataTransfer.dropEffect = "copy";
+    }
   };
 
   const handleDrop = (e: DragEvent) => {
     e.preventDefault();
+    if(mode !== 'place') return;
     const itemType = e.dataTransfer.getData("application/kartographer-item") as ItemType;
     if (!itemType || !canvasRef.current) return;
 
@@ -163,12 +176,13 @@ export function KartographerClient() {
   };
   
   const handleCanvasClick = (e: React.MouseEvent) => {
-    if (e.target === canvasRef.current) {
+    if (e.target === canvasRef.current || (e.target as HTMLElement).tagName === 'svg' || (e.target as HTMLElement).tagName === 'path') {
       setSelectedItem(null);
     }
   };
   
   const handleItemMouseDown = (e: React.MouseEvent, itemId: number, type: 'move' | 'scale' | 'rotate') => {
+    if (mode !== 'place') return;
     e.stopPropagation();
     e.preventDefault();
     setSelectedItem(itemId);
@@ -181,39 +195,77 @@ export function KartographerClient() {
   };
   
   const handleMouseMove = useCallback((e: MouseEvent) => {
-    if (!interaction.type || !interaction.startEvent || !interaction.initialItem || !canvasRef.current) return;
+    if (mode === 'place') {
+      if (!interaction.type || !interaction.startEvent || !interaction.initialItem || !canvasRef.current) return;
     
-    e.preventDefault();
-    
-    const { type, startEvent, initialItem } = interaction;
+      e.preventDefault();
+      
+      const { type, startEvent, initialItem } = interaction;
+      const canvasRect = canvasRef.current.getBoundingClientRect();
+
+      setItems(prevItems => prevItems.map(item => {
+          if (item.id !== initialItem.id) return item;
+
+          const updatedItem = { ...item };
+          const itemCenterX = item.x + (ITEM_SIZE * item.scale) / 2;
+          const itemCenterY = item.y + (ITEM_SIZE * item.scale) / 2;
+
+          if (type === 'move') {
+              updatedItem.x = initialItem.x + (e.pageX - startEvent.pageX);
+              updatedItem.y = initialItem.y + (e.pageY - startEvent.pageY);
+          } else if (type === 'rotate') {
+              const angle = Math.atan2(e.clientY - canvasRect.top - itemCenterY, e.clientX - canvasRect.left - itemCenterX) * (180 / Math.PI) + 90;
+              updatedItem.rotation = angle;
+          } else if (type === 'scale') {
+              const initialDist = Math.sqrt(Math.pow(startEvent.clientX - canvasRect.left - itemCenterX, 2) + Math.pow(startEvent.clientY - canvasRect.top - itemCenterY, 2));
+              const currentDist = Math.sqrt(Math.pow(e.clientX - canvasRect.left - itemCenterX, 2) + Math.pow(e.clientY - canvasRect.top - itemCenterY, 2));
+              const scaleFactor = currentDist / initialDist;
+              updatedItem.scale = Math.max(0.2, initialItem.scale * scaleFactor);
+          }
+          return updatedItem;
+      }));
+    } else if (mode === 'draw' && isDrawing && canvasRef.current) {
+      const canvasRect = canvasRef.current.getBoundingClientRect();
+      const x = e.clientX - canvasRect.left;
+      const y = e.clientY - canvasRect.top;
+      setLines(prevLines => {
+        const newLines = [...prevLines];
+        newLines[newLines.length - 1].points.push({ x, y });
+        return newLines;
+      });
+    }
+  }, [interaction, mode, isDrawing]);
+  
+  const handleCanvasMouseDown = (e: React.MouseEvent) => {
+    if (mode !== 'draw' || !canvasRef.current) return;
+    setIsDrawing(true);
+    setSelectedItem(null);
+
     const canvasRect = canvasRef.current.getBoundingClientRect();
+    const x = e.clientX - canvasRect.left;
+    const y = e.clientY - canvasRect.top;
 
-    setItems(prevItems => prevItems.map(item => {
-        if (item.id !== initialItem.id) return item;
-
-        const updatedItem = { ...item };
-        const itemCenterX = item.x + (ITEM_SIZE * item.scale) / 2;
-        const itemCenterY = item.y + (ITEM_SIZE * item.scale) / 2;
-
-        if (type === 'move') {
-            updatedItem.x = initialItem.x + (e.pageX - startEvent.pageX);
-            updatedItem.y = initialItem.y + (e.pageY - startEvent.pageY);
-        } else if (type === 'rotate') {
-            const angle = Math.atan2(e.clientY - canvasRect.top - itemCenterY, e.clientX - canvasRect.left - itemCenterX) * (180 / Math.PI) + 90;
-            updatedItem.rotation = angle;
-        } else if (type === 'scale') {
-            const initialDist = Math.sqrt(Math.pow(startEvent.clientX - canvasRect.left - itemCenterX, 2) + Math.pow(startEvent.clientY - canvasRect.top - itemCenterY, 2));
-            const currentDist = Math.sqrt(Math.pow(e.clientX - canvasRect.left - itemCenterX, 2) + Math.pow(e.clientY - canvasRect.top - itemCenterY, 2));
-            const scaleFactor = currentDist / initialDist;
-            updatedItem.scale = Math.max(0.2, initialItem.scale * scaleFactor);
-        }
-        return updatedItem;
-    }));
-  }, [interaction]);
+    const newLine: CanvasLine = {
+      id: Date.now(),
+      points: [{ x, y }],
+      color: drawColor,
+      strokeWidth: strokeWidth,
+      strokeDasharray: strokeDash === 'dashed' ? '10,10' : strokeDash === 'dotted' ? '2,8' : 'none',
+    };
+    setLines(prev => [...prev, newLine]);
+  };
+  
+  const handleCanvasMouseUp = () => {
+    if (mode === 'draw') {
+      setIsDrawing(false);
+    }
+  };
 
   const handleMouseUp = useCallback(() => {
-    setInteraction({ type: null, startEvent: null, initialItem: null });
-  }, []);
+    if (mode === 'place') {
+      setInteraction({ type: null, startEvent: null, initialItem: null });
+    }
+  }, [mode]);
 
   const deleteItem = (e: React.MouseEvent, itemId: number) => {
     e.stopPropagation();
@@ -232,7 +284,7 @@ export function KartographerClient() {
 
   const saveLayout = () => {
     try {
-      const data = JSON.stringify({ items, selectedLayout });
+      const data = JSON.stringify({ items, lines, selectedLayout });
       localStorage.setItem("kartographer-save", data);
       toast({ title: "Layout Saved!", description: "Your masterpiece is safe and sound." });
     } catch (error) {
@@ -244,8 +296,9 @@ export function KartographerClient() {
     try {
       const savedData = localStorage.getItem("kartographer-save");
       if (savedData) {
-        const { items, selectedLayout } = JSON.parse(savedData);
-        setItems(items);
+        const { items, lines, selectedLayout } = JSON.parse(savedData);
+        setItems(items || []);
+        setLines(lines || []);
         setSelectedLayout(selectedLayout);
         toast({ title: "Layout Loaded!", description: "Let's get back to creating." });
       } else {
@@ -274,6 +327,7 @@ export function KartographerClient() {
   const handleLayoutChange = (newLayoutImage: string) => {
     setSelectedLayout(newLayoutImage);
     setItems([]);
+    setLines([]);
   };
 
   useEffect(() => {
@@ -286,6 +340,12 @@ export function KartographerClient() {
     }
     return <div className={isSidebar ? "w-8 h-8" : "w-full h-full"}>{icon}</div>;
   };
+  
+  const strokeStyles = [
+    { name: 'Solid', value: 'none' },
+    { name: 'Dashed', value: 'dashed' },
+    { name: 'Dotted', value: 'dotted' },
+  ];
 
   return (
     <TooltipProvider>
@@ -295,6 +355,45 @@ export function KartographerClient() {
           <p className="text-center text-sm text-muted-foreground mb-4">Build your dream track!</p>
           <Separator />
           <div className="flex-grow overflow-y-auto py-4 pr-2">
+             <Card className="mb-4 bg-transparent border-primary/30">
+              <CardHeader className="p-4">
+                <CardTitle className="text-lg">Tools</CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 pt-0 space-y-4">
+                 <div className="grid grid-cols-2 gap-2">
+                    <Button variant={mode === 'place' ? 'default' : 'outline'} onClick={() => setMode('place')}>
+                      <MousePointer className="mr-2"/> Place
+                    </Button>
+                    <Button variant={mode === 'draw' ? 'default' : 'outline'} onClick={() => setMode('draw')}>
+                      <Pen className="mr-2"/> Draw
+                    </Button>
+                  </div>
+                   {mode === 'draw' && (
+                    <div className="space-y-4 pt-4 border-t border-primary/20">
+                      <div>
+                        <label className="text-sm font-medium">Color</label>
+                        <Input type="color" value={drawColor} onChange={(e) => setDrawColor(e.target.value)} className="p-1 h-10" />
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium">Style</label>
+                        <Select value={strokeDash} onValueChange={setStrokeDash}>
+                          <SelectTrigger><SelectValue/></SelectTrigger>
+                          <SelectContent>
+                            {strokeStyles.map(style => (
+                              <SelectItem key={style.value} value={style.value}>{style.name}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium">Thickness: {strokeWidth}px</label>
+                        <Slider value={[strokeWidth]} onValueChange={([val]) => setStrokeWidth(val)} min={1} max={50} step={1} />
+                      </div>
+                    </div>
+                  )}
+              </CardContent>
+            </Card>
+
             <Card className="mb-4 bg-transparent border-primary/30">
               <CardHeader className="p-4">
                 <CardTitle className="text-lg">Track Layouts</CardTitle>
@@ -327,7 +426,7 @@ export function KartographerClient() {
               <CardHeader className="p-4">
                 <CardTitle className="text-lg">Items</CardTitle>
               </CardHeader>
-              <CardContent className="p-4 pt-0 grid grid-cols-3 gap-4">
+              <CardContent className={cn("p-4 pt-0 grid grid-cols-3 gap-4", mode !== 'place' && "opacity-50 pointer-events-none")}>
                 {AVAILABLE_ITEMS.map(({ type, name, icon }) => (
                   <Tooltip key={type}>
                     <TooltipTrigger asChild>
@@ -366,7 +465,13 @@ export function KartographerClient() {
                 onDragOver={handleDragOver}
                 onDrop={handleDrop}
                 onClick={handleCanvasClick}
-                className="w-full h-full rounded-lg shadow-inner relative overflow-hidden border-4 border-white"
+                onMouseDown={handleCanvasMouseDown}
+                onMouseUp={handleCanvasMouseUp}
+                onMouseLeave={handleCanvasMouseUp}
+                className={cn(
+                  "w-full h-full rounded-lg shadow-inner relative overflow-hidden border-4 border-white",
+                  mode === 'draw' ? 'cursor-crosshair' : 'cursor-default'
+                )}
                 style={{
                   backgroundImage: `url(${selectedLayout})`,
                   backgroundSize: "contain",
@@ -375,6 +480,21 @@ export function KartographerClient() {
                 }}
                 data-ai-hint={layouts.find(l => l.image === selectedLayout)?.hint}
             >
+                <svg className="absolute top-0 left-0 w-full h-full pointer-events-none">
+                  {lines.map(line => (
+                    <path
+                      key={line.id}
+                      d={line.points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ')}
+                      stroke={line.color}
+                      strokeWidth={line.strokeWidth}
+                      strokeDasharray={line.strokeDasharray}
+                      fill="none"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  ))}
+                </svg>
+
                 {items.map(item => {
                     const itemData = AVAILABLE_ITEMS.find(i => i.type === item.type);
                     if (!itemData) return null;
