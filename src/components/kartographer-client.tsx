@@ -14,31 +14,33 @@ import { Input } from "@/components/ui/input";
 import { Download, Save, FolderOpen, Trash2, RotateCw, Scaling, Upload } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
+import { ItemBoxIcon } from "./icons/item-box-icon";
+
 
 const AVAILABLE_ITEMS = [
-  { type: "item-box" as ItemType, name: "? Block", emoji: "📦?" },
-  { type: "mushroom" as ItemType, name: "Mushroom", emoji: "🍄" },
-  { type: "golden-mushroom" as ItemType, name: "Golden Mushroom", emoji: "🌟" },
-  { type: "mega-mushroom" as ItemType, name: "Mega Mushroom", emoji: "💪" },
-  { type: "shell" as ItemType, name: "Green Shell", emoji: "🟢" },
-  { type: "red-shell" as ItemType, name: "Red Shell", emoji: "🔴" },
-  { type: "blue-shell" as ItemType, name: "Blue Shell", emoji: "🔵" },
-  { type: "coin-shell" as ItemType, name: "Coin Shell", emoji: "🟡" },
-  { type: "fire-flower" as ItemType, name: "Fire Flower", emoji: "🔥" },
-  { type: "ice-flower" as ItemType, name: "Ice Flower", emoji: "❄️" },
-  { type: "boomerang-flower" as ItemType, name: "Boomerang Flower", emoji: "🪃" },
-  { type: "bullet-bill" as ItemType, name: "Bullet Bill", emoji: "🚀" },
-  { type: "bob-omb" as ItemType, name: "Bob-omb", emoji: "💣" },
-  { type: "hammer" as ItemType, name: "Hammer", emoji: "🔨" },
-  { type: "super-horn" as ItemType, name: "Super Horn", emoji: "📣" },
-  { type: "coin" as ItemType, name: "Coin", emoji: "🪙" },
-  { type: "boo" as ItemType, name: "Boo", emoji: "👻" },
-  { type: "blooper" as ItemType, name: "Blooper", emoji: "🦑" },
-  { type: "feather" as ItemType, name: "Feather", emoji: "🪶" },
-  { type: "super-star" as ItemType, name: "Super Star", emoji: "⭐" },
-  { type: "lightning" as ItemType, name: "Lightning", emoji: "⚡" },
-  { type: "kamek" as ItemType, name: "Kamek", emoji: "🧙" },
-  { type: "dash-food" as ItemType, name: "Dash Food", emoji: "🍩" },
+  { type: "item-box" as ItemType, name: "? Block", icon: <ItemBoxIcon /> },
+  { type: "mushroom" as ItemType, name: "Mushroom", icon: "🍄" },
+  { type: "golden-mushroom" as ItemType, name: "Golden Mushroom", icon: "🌟" },
+  { type: "mega-mushroom" as ItemType, name: "Mega Mushroom", icon: "💪" },
+  { type: "shell" as ItemType, name: "Green Shell", icon: "🟢" },
+  { type: "red-shell" as ItemType, name: "Red Shell", icon: "🔴" },
+  { type: "blue-shell" as ItemType, name: "Blue Shell", icon: "🔵" },
+  { type: "coin-shell" as ItemType, name: "Coin Shell", icon: "🟡" },
+  { type: "fire-flower" as ItemType, name: "Fire Flower", icon: "🔥" },
+  { type: "ice-flower" as ItemType, name: "Ice Flower", icon: "❄️" },
+  { type: "boomerang-flower" as ItemType, name: "Boomerang Flower", icon: "🪃" },
+  { type: "bullet-bill" as ItemType, name: "Bullet Bill", icon: "🚀" },
+  { type: "bob-omb" as ItemType, name: "Bob-omb", icon: "💣" },
+  { type: "hammer" as ItemType, name: "Hammer", icon: "🔨" },
+  { type: "super-horn" as ItemType, name: "Super Horn", icon: "📣" },
+  { type: "coin" as ItemType, name: "Coin", icon: "🪙" },
+  { type: "boo" as ItemType, name: "Boo", icon: "👻" },
+  { type: "blooper" as ItemType, name: "Blooper", icon: "🦑" },
+  { type: "feather" as ItemType, name: "Feather", icon: "🪶" },
+  { type: "super-star" as ItemType, name: "Super Star", icon: "⭐" },
+  { type: "lightning" as ItemType, name: "Lightning", icon: "⚡" },
+  { type: "kamek" as ItemType, name: "Kamek", icon: "🧙" },
+  { type: "dash-food" as ItemType, name: "Dash Food", icon: "🍩" },
 ];
 
 
@@ -78,7 +80,8 @@ export function KartographerClient() {
         customLayouts.forEach((layout: { name: string, image: string, hint: string }) => combinedLayouts.set(layout.name, layout));
         setLayouts(Array.from(combinedLayouts.values()));
       }
-    } catch (error) {
+    } catch (error)
+      {
       console.error("Failed to load custom layouts from localStorage", error);
     }
   }, []);
@@ -107,7 +110,8 @@ export function KartographerClient() {
           const newLayoutsList = [...prevLayouts, newLayout];
           
           try {
-            const currentCustomLayouts = JSON.parse(localStorage.getItem("kartographer-custom-layouts") || "[]");
+            const currentCustomLayoutsJSON = localStorage.getItem("kartographer-custom-layouts");
+            const currentCustomLayouts = currentCustomLayoutsJSON ? JSON.parse(currentCustomLayoutsJSON) : [];
             const updatedCustomLayouts = [...currentCustomLayouts, newLayout];
             localStorage.setItem("kartographer-custom-layouts", JSON.stringify(updatedCustomLayouts));
           } catch(error) {
@@ -274,6 +278,13 @@ export function KartographerClient() {
     loadLayout();
   }, []);
 
+  const renderItemIcon = (icon: React.ReactNode, isSidebar: boolean) => {
+    if (typeof icon === 'string') {
+      return <span className={isSidebar ? "text-2xl" : "text-3xl"}>{icon}</span>;
+    }
+    return <div className={isSidebar ? "w-8 h-8" : "w-full h-full"}>{icon}</div>;
+  };
+
   return (
     <TooltipProvider>
       <div className="flex h-screen w-full bg-background font-headline text-foreground overflow-hidden">
@@ -315,7 +326,7 @@ export function KartographerClient() {
                 <CardTitle className="text-lg">Items</CardTitle>
               </CardHeader>
               <CardContent className="p-4 pt-0 grid grid-cols-3 gap-4">
-                {AVAILABLE_ITEMS.map(({ type, name, emoji }) => (
+                {AVAILABLE_ITEMS.map(({ type, name, icon }) => (
                   <Tooltip key={type}>
                     <TooltipTrigger asChild>
                       <div
@@ -323,7 +334,7 @@ export function KartographerClient() {
                         onDragStart={(e) => handleDragStart(e, type)}
                         className="p-2 border border-dashed border-primary/50 rounded-lg flex flex-col items-center justify-center aspect-square cursor-grab active:cursor-grabbing transition-all hover:bg-primary/10 hover:shadow-md"
                       >
-                        <span className="text-2xl">{emoji}</span>
+                        {renderItemIcon(icon, true)}
                         <span className="text-xs text-center mt-1">{name}</span>
                       </div>
                     </TooltipTrigger>
@@ -365,6 +376,8 @@ export function KartographerClient() {
                     const itemData = AVAILABLE_ITEMS.find(i => i.type === item.type);
                     if (!itemData) return null;
                     const isSelected = selectedItem === item.id;
+                    const scaledItemSize = ITEM_SIZE * item.scale;
+
                     return (
                         <div
                             key={item.id}
@@ -372,14 +385,16 @@ export function KartographerClient() {
                             style={{
                                 left: `${item.x}px`,
                                 top: `${item.y}px`,
-                                width: `${ITEM_SIZE * item.scale}px`,
-                                height: `${ITEM_SIZE * item.scale}px`,
+                                width: `${scaledItemSize}px`,
+                                height: `${scaledItemSize}px`,
                                 transform: `rotate(${item.rotation}deg)`,
                             }}
                             onMouseDown={(e) => handleItemMouseDown(e, item.id, 'move')}
                         >
                             <div className={cn("w-full h-full relative group transition-all flex items-center justify-center", isSelected && "outline-2 outline-dashed outline-accent rounded-lg")}>
-                                <span className="text-3xl" style={{fontSize: `${2 * item.scale}rem`}}>{itemData.emoji}</span>
+                                <div className="w-full h-full flex items-center justify-center" style={{transform: `scale(${item.scale})`}}>
+                                  {renderItemIcon(itemData.icon, false)}
+                                </div>
                                 {isSelected && (
                                 <TooltipProvider>
                                     <div 
