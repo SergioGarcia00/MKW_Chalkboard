@@ -11,66 +11,43 @@ import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import {
-  ItemBoxIcon,
-  BananaIcon,
-  MushroomIcon,
-  ShellIcon,
-  GoldenMushroomIcon,
-  MegaMushroomIcon,
-  RedShellIcon,
-  BlueShellIcon,
-  FireFlowerIcon,
-  IceFlowerIcon,
-  BoomerangFlowerIcon,
-  BulletBillIcon,
-  BobOmbIcon,
-  SuperHornIcon,
-  CoinIcon,
-  BooIcon,
-  BlooperIcon,
-  FeatherIcon,
-  SuperStarIcon,
-  LightningIcon,
-  HammerIcon,
-  KamekIcon,
-  DashFoodIcon,
-} from "@/components/icons/mario-kart";
 import { Download, Save, FolderOpen, Trash2, RotateCw, Scaling, Upload } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 
 const AVAILABLE_ITEMS = [
-  { type: "item-box" as ItemType, name: "? Block", icon: ItemBoxIcon },
-  { type: "banana" as ItemType, name: "Banana", icon: BananaIcon },
-  { type: "mushroom" as ItemType, name: "Mushroom", icon: MushroomIcon },
-  { type: "golden-mushroom" as ItemType, name: "Golden Mushroom", icon: GoldenMushroomIcon },
-  { type: "mega-mushroom" as ItemType, name: "Mega Mushroom", icon: MegaMushroomIcon },
-  { type: "shell" as ItemType, name: "Green Shell", icon: ShellIcon },
-  { type: "red-shell" as ItemType, name: "Red Shell", icon: RedShellIcon },
-  { type: "blue-shell" as ItemType, name: "Blue Shell", icon: BlueShellIcon },
-  { type: "fire-flower" as ItemType, name: "Fire Flower", icon: FireFlowerIcon },
-  { type: "ice-flower" as ItemType, name: "Ice Flower", icon: IceFlowerIcon },
-  { type: "boomerang-flower" as ItemType, name: "Boomerang", icon: BoomerangFlowerIcon },
-  { type: "bullet-bill" as ItemType, name: "Bullet Bill", icon: BulletBillIcon },
-  { type: "bob-omb" as ItemType, name: "Bob-Omb", icon: BobOmbIcon },
-  { type: "hammer" as ItemType, name: "Hammer", icon: HammerIcon },
-  { type: "super-horn" as ItemType, name: "Super Horn", icon: SuperHornIcon },
-  { type: "coin" as ItemType, name: "Coin", icon: CoinIcon },
-  { type: "boo" as ItemType, name: "Boo", icon: BooIcon },
-  { type: "blooper" as ItemType, name: "Blooper", icon: BlooperIcon },
-  { type: "feather" as ItemType, name: "Feather", icon: FeatherIcon },
-  { type: "super-star" as ItemType, name: "Super Star", icon: SuperStarIcon },
-  { type: "lightning" as ItemType, name: "Lightning", icon: LightningIcon },
-  { type: "kamek" as ItemType, name: "Kamek", icon: KamekIcon },
-  { type: "dash-food" as ItemType, name: "Dash Food", icon: DashFoodIcon },
+  { type: "item-box" as ItemType, name: "? Block", emoji: "❓" },
+  { type: "banana" as ItemType, name: "Banana", emoji: "🍌" },
+  { type: "mushroom" as ItemType, name: "Mushroom", emoji: "🍄" },
+  { type: "golden-mushroom" as ItemType, name: "Golden Mushroom", emoji: "🌟" },
+  { type: "mega-mushroom" as ItemType, name: "Mega Mushroom", emoji: "💪" },
+  { type: "shell" as ItemType, name: "Green Shell", emoji: "🐢" },
+  { type: "red-shell" as ItemType, name: "Red Shell", emoji: "🔴" },
+  { type: "blue-shell" as ItemType, name: "Blue Shell", emoji: "🔵" },
+  { type: "fire-flower" as ItemType, name: "Fire Flower", emoji: "🔥" },
+  { type: "ice-flower" as ItemType, name: "Ice Flower", emoji: "❄️" },
+  { type: "boomerang-flower" as ItemType, name: "Boomerang", emoji: "🪃" },
+  { type: "bullet-bill" as ItemType, name: "Bullet Bill", emoji: "🚀" },
+  { type: "bob-omb" as ItemType, name: "Bob-omb", emoji: "💣" },
+  { type: "hammer" as ItemType, name: "Hammer", emoji: "🔨" },
+  { type: "super-horn" as ItemType, name: "Super Horn", emoji: "📣" },
+  { type: "coin" as ItemType, name: "Coin", emoji: "🪙" },
+  { type: "boo" as ItemType, name: "Boo", emoji: "👻" },
+  { type: "blooper" as ItemType, name: "Blooper", emoji: "🦑" },
+  { type: "feather" as ItemType, name: "Feather", emoji: "🪶" },
+  { type: "super-star" as ItemType, name: "Super Star", emoji: "⭐" },
+  { type: "lightning" as ItemType, name: "Lightning", emoji: "⚡" },
+  { type: "kamek" as ItemType, name: "Kamek", emoji: "🧙" },
+  { type: "dash-food" as ItemType, name: "Dash Food", emoji: "🍩" },
 ];
+
 
 const defaultLayouts = [
   { name: "Moo Moo Meadows", image: "https://placehold.co/1024x768.png", hint: "grassy field" },
   { name: "Rainbow Road", image: "https://placehold.co/1024x768.png", hint: "rainbow space" },
   { name: "Bowser's Castle", image: "https://placehold.co/1024x768.png", hint: "lava castle" },
   { name: "DK Jungle", image: "https://placehold.co/1024x768.png", hint: "jungle ruins" },
+  { name: "200px-MKWorld_MarioCircuit_Map", image: "https://placehold.co/1024x768.png", hint: "race track" },
 ];
 
 const ITEM_SIZE = 48;
@@ -338,7 +315,7 @@ export function KartographerClient() {
                 <CardTitle className="text-lg">Items</CardTitle>
               </CardHeader>
               <CardContent className="p-4 pt-0 grid grid-cols-3 gap-4">
-                {AVAILABLE_ITEMS.map(({ type, name, icon: Icon }) => (
+                {AVAILABLE_ITEMS.map(({ type, name, emoji }) => (
                   <Tooltip key={type}>
                     <TooltipTrigger asChild>
                       <div
@@ -346,7 +323,7 @@ export function KartographerClient() {
                         onDragStart={(e) => handleDragStart(e, type)}
                         className="p-2 border border-dashed border-primary/50 rounded-lg flex flex-col items-center justify-center aspect-square cursor-grab active:cursor-grabbing transition-all hover:bg-primary/10 hover:shadow-md"
                       >
-                        <Icon className="w-8 h-8" />
+                        <span className="text-2xl">{emoji}</span>
                         <span className="text-xs text-center mt-1">{name}</span>
                       </div>
                     </TooltipTrigger>
@@ -385,13 +362,13 @@ export function KartographerClient() {
                 data-ai-hint={layouts.find(l => l.image === selectedLayout)?.hint}
             >
                 {items.map(item => {
-                    const ItemIcon = AVAILABLE_ITEMS.find(i => i.type === item.type)?.icon;
-                    if (!ItemIcon) return null;
+                    const itemData = AVAILABLE_ITEMS.find(i => i.type === item.type);
+                    if (!itemData) return null;
                     const isSelected = selectedItem === item.id;
                     return (
                         <div
                             key={item.id}
-                            className={cn("absolute cursor-grab active:cursor-grabbing", isSelected && "z-10")}
+                            className={cn("absolute cursor-grab active:cursor-grabbing flex items-center justify-center", isSelected && "z-10")}
                             style={{
                                 left: `${item.x}px`,
                                 top: `${item.y}px`,
@@ -401,8 +378,8 @@ export function KartographerClient() {
                             }}
                             onMouseDown={(e) => handleItemMouseDown(e, item.id, 'move')}
                         >
-                            <div className={cn("w-full h-full relative group transition-all", isSelected && "outline-2 outline-dashed outline-accent rounded-lg")}>
-                                <ItemIcon className="w-full h-full drop-shadow-lg" />
+                            <div className={cn("w-full h-full relative group transition-all flex items-center justify-center", isSelected && "outline-2 outline-dashed outline-accent rounded-lg")}>
+                                <span className="text-3xl" style={{fontSize: `${2 * item.scale}rem`}}>{itemData.emoji}</span>
                                 {isSelected && (
                                 <TooltipProvider>
                                     <div 
