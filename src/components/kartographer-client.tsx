@@ -9,16 +9,53 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ItemBoxIcon, BananaIcon, MushroomIcon, ShellIcon } from "@/components/icons/mario-kart";
-import { Download, Save, FolderOpen, Trash2, RotateCw, Scaling, GripVertical } from "lucide-react";
+import {
+  ItemBoxIcon,
+  BananaIcon,
+  MushroomIcon,
+  ShellIcon,
+  GoldenMushroomIcon,
+  MegaMushroomIcon,
+  RedShellIcon,
+  BlueShellIcon,
+  FireFlowerIcon,
+  IceFlowerIcon,
+  BoomerangFlowerIcon,
+  BulletBillIcon,
+  BobOmbIcon,
+  SuperHornIcon,
+  CoinIcon,
+  BooIcon,
+  BlooperIcon,
+  FeatherIcon,
+  SuperStarIcon,
+  LightningIcon,
+} from "@/components/icons/mario-kart";
+import { Download, Save, FolderOpen, Trash2, RotateCw, Scaling } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 
 const AVAILABLE_ITEMS = [
-  { type: "item-box" as ItemType, name: "Item Box", icon: ItemBoxIcon },
+  { type: "item-box" as ItemType, name: "? Block", icon: ItemBoxIcon },
   { type: "banana" as ItemType, name: "Banana", icon: BananaIcon },
   { type: "mushroom" as ItemType, name: "Mushroom", icon: MushroomIcon },
-  { type: "shell" as ItemType, name: "Shell", icon: ShellIcon },
+  { type: "golden-mushroom" as ItemType, name: "Golden Mushroom", icon: GoldenMushroomIcon },
+  { type: "mega-mushroom" as ItemType, name: "Mega Mushroom", icon: MegaMushroomIcon },
+  { type: "shell" as ItemType, name: "Green Shell", icon: ShellIcon },
+  { type: "red-shell" as ItemType, name: "Red Shell", icon: RedShellIcon },
+  { type: "blue-shell" as ItemType, name: "Blue Shell", icon: BlueShellIcon },
+  { type: "fire-flower" as ItemType, name: "Fire Flower", icon: FireFlowerIcon },
+  { type: "ice-flower" as ItemType, name: "Ice Flower", icon: IceFlowerIcon },
+  { type: "boomerang-flower" as ItemType, name: "Boomerang", icon: BoomerangFlowerIcon },
+  { type: "bullet-bill" as ItemType, name: "Bullet Bill", icon: BulletBillIcon },
+  { type: "bob-omb" as ItemType, name: "Bob-Omb", icon: BobOmbIcon },
+  { type: "super-horn" as ItemType, name: "Super Horn", icon: SuperHornIcon },
+  { type: "coin" as ItemType, name: "Coin", icon: CoinIcon },
+  { type: "boo" as ItemType, name: "Boo", icon: BooIcon },
+  { type: "blooper" as ItemType, name: "Blooper", icon: BlooperIcon },
+  { type: "feather" as ItemType, name: "Feather", icon: FeatherIcon },
+  { type: "super-star" as ItemType, name: "Super Star", icon: SuperStarIcon },
+  { type: "lightning" as ItemType, name: "Lightning", icon: LightningIcon },
 ];
 
 const LAYOUTS = [
@@ -271,7 +308,7 @@ export function KartographerClient() {
                                 left: `${item.x}px`,
                                 top: `${item.y}px`,
                                 width: `${ITEM_SIZE * item.scale}px`,
-                                height: `${ITEM_SIZE * item.scale}px`,
+                                height: `${ITEM_SIZE * item.scale}Ipx`,
                                 transform: `rotate(${item.rotation}deg)`,
                             }}
                             onMouseDown={(e) => handleItemMouseDown(e, item.id, 'move')}
