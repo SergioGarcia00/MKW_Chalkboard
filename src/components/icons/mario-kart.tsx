@@ -286,6 +286,24 @@ export function CoinIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
+export function CoinShellIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="48"
+      height="48"
+      viewBox="0 0 24 24"
+      fill="#FFD700"
+      stroke="#B8860B"
+      strokeWidth="1"
+      {...props}
+    >
+      <path d="M4.63,14.5a8,8,0,1,1,14.74,0" />
+      <path d="M12 16.5a4 4 0 0 1-4-4h8a4 4 0 0 1-4 4z" />
+    </svg>
+  );
+}
+
 export function BooIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <svg
@@ -370,6 +388,59 @@ export function LightningIcon(props: SVGProps<SVGSVGElement>) {
       {...props}
     >
       <path d="m13 2-10 12h9l-1 8 10-12h-9z" />
+    </svg>
+  );
+}
+
+export function HammerIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="48"
+      height="48"
+      viewBox="0 0 24 24"
+      fill="#8B4513"
+      stroke="#FFFFFF"
+      strokeWidth="1"
+      {...props}
+    >
+      <path d="M15.5 5.5l-6 6-4-4L2 11l4 4 6-6 4 4 3.5-3.5z" />
+      <path d="M14 8l6-6" />
+    </svg>
+  );
+}
+
+export function KamekIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="48"
+      height="48"
+      viewBox="0 0 24 24"
+      fill="#4B0082"
+      stroke="#FFFFFF"
+      strokeWidth="1"
+      {...props}
+    >
+      <path d="M12 2L2 22h20L12 2zm0 4l7 14H5l7-14z" />
+      <circle cx="12" cy="18" r="2" />
+    </svg>
+  );
+}
+
+export function DashFoodIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="48"
+      height="48"
+      viewBox="0 0 24 24"
+      fill="#FF6347"
+      stroke="#FFFFFF"
+      strokeWidth="1"
+      {...props}
+    >
+      <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
     </svg>
   );
 }

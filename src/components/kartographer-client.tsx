@@ -30,6 +30,10 @@ import {
   FeatherIcon,
   SuperStarIcon,
   LightningIcon,
+  CoinShellIcon,
+  HammerIcon,
+  KamekIcon,
+  DashFoodIcon,
 } from "@/components/icons/mario-kart";
 import { Download, Save, FolderOpen, Trash2, RotateCw, Scaling } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -44,11 +48,13 @@ const AVAILABLE_ITEMS = [
   { type: "shell" as ItemType, name: "Green Shell", icon: ShellIcon },
   { type: "red-shell" as ItemType, name: "Red Shell", icon: RedShellIcon },
   { type: "blue-shell" as ItemType, name: "Blue Shell", icon: BlueShellIcon },
+  { type: "coin-shell" as ItemType, name: "Coin Shell", icon: CoinShellIcon },
   { type: "fire-flower" as ItemType, name: "Fire Flower", icon: FireFlowerIcon },
   { type: "ice-flower" as ItemType, name: "Ice Flower", icon: IceFlowerIcon },
   { type: "boomerang-flower" as ItemType, name: "Boomerang", icon: BoomerangFlowerIcon },
   { type: "bullet-bill" as ItemType, name: "Bullet Bill", icon: BulletBillIcon },
   { type: "bob-omb" as ItemType, name: "Bob-Omb", icon: BobOmbIcon },
+  { type: "hammer" as ItemType, name: "Hammer", icon: HammerIcon },
   { type: "super-horn" as ItemType, name: "Super Horn", icon: SuperHornIcon },
   { type: "coin" as ItemType, name: "Coin", icon: CoinIcon },
   { type: "boo" as ItemType, name: "Boo", icon: BooIcon },
@@ -56,6 +62,8 @@ const AVAILABLE_ITEMS = [
   { type: "feather" as ItemType, name: "Feather", icon: FeatherIcon },
   { type: "super-star" as ItemType, name: "Super Star", icon: SuperStarIcon },
   { type: "lightning" as ItemType, name: "Lightning", icon: LightningIcon },
+  { type: "kamek" as ItemType, name: "Kamek", icon: KamekIcon },
+  { type: "dash-food" as ItemType, name: "Dash Food", icon: DashFoodIcon },
 ];
 
 const LAYOUTS = [
@@ -65,7 +73,7 @@ const LAYOUTS = [
   { name: "DK Jungle", image: "https://placehold.co/1024x768.png", hint: "jungle ruins" },
 ];
 
-const ITEM_SIZE = 64;
+const ITEM_SIZE = 48;
 
 export function KartographerClient() {
   const [items, setItems] = useState<CanvasItem[]>([]);
@@ -308,7 +316,7 @@ export function KartographerClient() {
                                 left: `${item.x}px`,
                                 top: `${item.y}px`,
                                 width: `${ITEM_SIZE * item.scale}px`,
-                                height: `${ITEM_SIZE * item.scale}Ipx`,
+                                height: `${ITEM_SIZE * item.scale}px`,
                                 transform: `rotate(${item.rotation}deg)`,
                             }}
                             onMouseDown={(e) => handleItemMouseDown(e, item.id, 'move')}
