@@ -16,13 +16,14 @@ import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { ItemBoxIcon } from "./icons/item-box-icon";
 import { GoldenMushroomIcon } from "./icons/golden-mushroom-icon";
+import { MegaMushroomIcon } from "./icons/mega-mushroom-icon";
 
 
 const AVAILABLE_ITEMS = [
   { type: "item-box" as ItemType, name: "? Block", icon: <ItemBoxIcon /> },
   { type: "mushroom" as ItemType, name: "Mushroom", icon: "🍄" },
   { type: "golden-mushroom" as ItemType, name: "Golden Mushroom", icon: <GoldenMushroomIcon /> },
-  { type: "mega-mushroom" as ItemType, name: "Mega Mushroom", icon: "💪" },
+  { type: "mega-mushroom" as ItemType, name: "Mega Mushroom", icon: <MegaMushroomIcon /> },
   { type: "shell" as ItemType, name: "Green Shell", icon: "🟢" },
   { type: "red-shell" as ItemType, name: "Red Shell", icon: "🔴" },
   { type: "blue-shell" as ItemType, name: "Blue Shell", icon: "🔵" },
@@ -423,5 +424,3 @@ export function KartographerClient() {
     </TooltipProvider>
   );
 }
-
-    
