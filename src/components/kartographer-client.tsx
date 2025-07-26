@@ -68,7 +68,7 @@ const AVAILABLE_ITEMS = [
   { type: "dash-food" as ItemType, name: "Dash Food", icon: DashFoodIcon },
 ];
 
-const LAYOUTS = [
+const defaultLayouts = [
   { name: "Moo Moo Meadows", image: "https://placehold.co/1024x768.png", hint: "grassy field" },
   { name: "Rainbow Road", image: "https://placehold.co/1024x768.png", hint: "rainbow space" },
   { name: "Bowser's Castle", image: "https://placehold.co/1024x768.png", hint: "lava castle" },
@@ -79,7 +79,8 @@ const ITEM_SIZE = 48;
 
 export function KartographerClient() {
   const [items, setItems] = useState<CanvasItem[]>([]);
-  const [selectedLayout, setSelectedLayout] = useState(LAYOUTS[0].image);
+  const [layouts, setLayouts] = useState(defaultLayouts);
+  const [selectedLayout, setSelectedLayout] = useState(layouts[0].image);
   const [selectedItem, setSelectedItem] = useState<number | null>(null);
   const [interaction, setInteraction] = useState<{
     type: 'move' | 'scale' | 'rotate' | null;
@@ -91,14 +92,41 @@ export function KartographerClient() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
+  useEffect(() => {
+    try {
+      const savedCustomLayouts = localStorage.getItem("kartographer-custom-layouts");
+      if (savedCustomLayouts) {
+        const customLayouts = JSON.parse(savedCustomLayouts);
+        setLayouts(prev => [...prev, ...customLayouts]);
+      }
+    } catch (error) {
+      console.error("Failed to load custom layouts from localStorage", error);
+    }
+  }, []);
+
   const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && file.type.startsWith("image/")) {
       const reader = new FileReader();
       reader.onload = (event) => {
         const imageUrl = event.target?.result as string;
+        const layoutName = file.name.replace(/\.[^/.]+$/, ""); // Use file name as layout name
+        const newLayout = { name: layoutName, image: imageUrl, hint: "custom" };
+
+        setLayouts(prev => {
+          const newLayouts = [...prev, newLayout];
+          try {
+            const currentCustomLayouts = JSON.parse(localStorage.getItem("kartographer-custom-layouts") || "[]");
+            const updatedCustomLayouts = [...currentCustomLayouts, newLayout];
+            localStorage.setItem("kartographer-custom-layouts", JSON.stringify(updatedCustomLayouts));
+          } catch(error) {
+            console.error("Failed to save custom layout to localStorage", error);
+          }
+          return newLayouts;
+        });
+        
         setSelectedLayout(imageUrl);
-        toast({ title: "Custom layout loaded!" });
+        toast({ title: "Custom layout loaded and saved!" });
       };
       reader.readAsDataURL(file);
     } else {
@@ -264,7 +292,7 @@ export function KartographerClient() {
                     <SelectValue placeholder="Choose a layout" />
                   </SelectTrigger>
                   <SelectContent>
-                    {LAYOUTS.map(layout => (
+                    {layouts.map(layout => (
                       <SelectItem key={layout.name} value={layout.image}>{layout.name}</SelectItem>
                     ))}
                   </SelectContent>
@@ -331,7 +359,7 @@ export function KartographerClient() {
                   backgroundSize: "cover",
                   backgroundPosition: "center",
                 }}
-                data-ai-hint={LAYOUTS.find(l => l.image === selectedLayout)?.hint}
+                data-ai-hint={layouts.find(l => l.image === selectedLayout)?.hint}
             >
                 {items.map(item => {
                     const ItemIcon = AVAILABLE_ITEMS.find(i => i.type === item.type)!.icon;
@@ -378,5 +406,7 @@ export function KartographerClient() {
     </TooltipProvider>
   );
 }
+
+    
 
     
