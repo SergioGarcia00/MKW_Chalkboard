@@ -269,6 +269,11 @@ export function KartographerClient() {
       }, 100);
     }
   };
+  
+  const handleLayoutChange = (newLayoutImage: string) => {
+    setSelectedLayout(newLayoutImage);
+    setItems([]);
+  };
 
   useEffect(() => {
     loadLayout();
@@ -287,7 +292,7 @@ export function KartographerClient() {
                 <CardTitle className="text-lg">Track Layouts</CardTitle>
               </CardHeader>
               <CardContent className="p-4 pt-0 space-y-4">
-                <Select value={selectedLayout} onValueChange={setSelectedLayout}>
+                <Select value={selectedLayout} onValueChange={handleLayoutChange}>
                   <SelectTrigger>
                     <SelectValue placeholder="Choose a layout" />
                   </SelectTrigger>
