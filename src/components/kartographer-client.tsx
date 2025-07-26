@@ -110,24 +110,24 @@ export function KartographerClient() {
       const reader = new FileReader();
       reader.onload = (event) => {
         const imageUrl = event.target?.result as string;
-        let layoutName = file.name.replace(/\.[^/.]+$/, ""); // Use file name as layout name
+        const layoutNameFromFile = file.name.replace(/\.[^/.]+$/, ""); // Use file name as layout name
         
         setLayouts(prev => {
           // Ensure layout name is unique
           const existingNames = prev.map(l => l.name);
+          let newLayoutName = layoutNameFromFile;
           let counter = 1;
-          let newLayoutName = layoutName;
-          while(existingNames.includes(newLayoutName)) {
-            newLayoutName = `${layoutName} (${counter})`;
+          while (existingNames.includes(newLayoutName)) {
+            newLayoutName = `${layoutNameFromFile} (${counter})`;
             counter++;
           }
-          layoutName = newLayoutName;
 
-          const newLayout = { name: layoutName, image: imageUrl, hint: "custom" };
+          const newLayout = { name: newLayoutName, image: imageUrl, hint: "custom" };
           const newLayouts = [...prev, newLayout];
 
           try {
             const currentCustomLayouts = JSON.parse(localStorage.getItem("kartographer-custom-layouts") || "[]");
+            // Also ensure uniqueness when saving to localStorage
             const updatedCustomLayouts = [...currentCustomLayouts, newLayout];
             localStorage.setItem("kartographer-custom-layouts", JSON.stringify(updatedCustomLayouts));
           } catch(error) {
@@ -424,8 +424,3 @@ export function KartographerClient() {
     </TooltipProvider>
   );
 }
-
-    
-
-    
-
