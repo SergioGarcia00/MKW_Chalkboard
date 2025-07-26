@@ -16,7 +16,7 @@ import { cn } from "@/lib/utils";
 import Image from "next/image";
 
 const AVAILABLE_ITEMS = [
-  { type: "item-box" as ItemType, name: "? Block", emoji: "❓" },
+  { type: "item-box" as ItemType, name: "? Block", emoji: "📦?" },
   { type: "mushroom" as ItemType, name: "Mushroom", emoji: "🍄" },
   { type: "golden-mushroom" as ItemType, name: "Golden Mushroom", emoji: "🌟" },
   { type: "mega-mushroom" as ItemType, name: "Mega Mushroom", emoji: "💪" },
