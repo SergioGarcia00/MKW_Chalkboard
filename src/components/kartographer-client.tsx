@@ -1,6 +1,7 @@
+
 "use client";
 
-import React, { useState, useRef, useEffect, useCallback, DragEvent } from "react";
+import React, { useState, useRef, useEffect, useCallback, DragEvent, ChangeEvent } from "react";
 import html2canvas from "html2canvas";
 import { useToast } from "@/hooks/use-toast";
 import type { CanvasItem, ItemType } from "@/lib/types";
@@ -9,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 import {
   ItemBoxIcon,
   BananaIcon,
@@ -35,7 +37,7 @@ import {
   KamekIcon,
   DashFoodIcon,
 } from "@/components/icons/mario-kart";
-import { Download, Save, FolderOpen, Trash2, RotateCw, Scaling } from "lucide-react";
+import { Download, Save, FolderOpen, Trash2, RotateCw, Scaling, Upload } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 
@@ -86,7 +88,23 @@ export function KartographerClient() {
   }>({ type: null, startEvent: null, initialItem: null });
 
   const canvasRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+
+  const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && file.type.startsWith("image/")) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const imageUrl = event.target?.result as string;
+        setSelectedLayout(imageUrl);
+        toast({ title: "Custom layout loaded!" });
+      };
+      reader.readAsDataURL(file);
+    } else {
+      toast({ variant: "destructive", title: "Invalid File", description: "Please select an image file." });
+    }
+  };
 
   const handleDragStart = (e: DragEvent, itemType: ItemType) => {
     e.dataTransfer.setData("application/kartographer-item", itemType);
@@ -131,7 +149,6 @@ export function KartographerClient() {
     const item = items.find(i => i.id === itemId);
     if (!item) return;
     
-    // We need to use native mouse event to get pageX/Y
     const nativeEvent = e.nativeEvent;
     
     setInteraction({ type, startEvent: nativeEvent, initialItem: item });
@@ -241,7 +258,7 @@ export function KartographerClient() {
               <CardHeader className="p-4">
                 <CardTitle className="text-lg">Track Layouts</CardTitle>
               </CardHeader>
-              <CardContent className="p-4 pt-0">
+              <CardContent className="p-4 pt-0 space-y-4">
                 <Select value={selectedLayout} onValueChange={setSelectedLayout}>
                   <SelectTrigger>
                     <SelectValue placeholder="Choose a layout" />
@@ -252,6 +269,17 @@ export function KartographerClient() {
                     ))}
                   </SelectContent>
                 </Select>
+                 <Input
+                  type="file"
+                  ref={fileInputRef}
+                  className="hidden"
+                  accept="image/png, image/jpeg, image/webp"
+                  onChange={handleImageUpload}
+                />
+                <Button variant="outline" className="w-full" onClick={() => fileInputRef.current?.click()}>
+                  <Upload className="mr-2 h-4 w-4" />
+                  Import Custom
+                </Button>
               </CardContent>
             </Card>
             <Card className="bg-transparent border-primary/30">
@@ -350,3 +378,5 @@ export function KartographerClient() {
     </TooltipProvider>
   );
 }
+
+    
