@@ -11,7 +11,7 @@ import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Download, Save, FolderOpen, Trash2, RotateCw, Scaling, Upload, Pen, MousePointer, Pencil, Minus, Eraser } from "lucide-react";
+import { Download, Save, FolderOpen, Trash2, RotateCw, Scaling, Upload, Pen, MousePointer, Eraser } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { ItemBoxIcon } from "./icons/item-box-icon";
