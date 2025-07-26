@@ -203,7 +203,7 @@ export function BulletBillIcon(props: SVGProps<SVGSVGElement>) {
       <path d="M21.5,12a9.5,9.5,0,1,1-19,0,9.5,9.5,0,0,1,19,0Z" fill="#212121" stroke="#fff" strokeWidth="1"/>
       <path d="M18,12a6,6,0,0,1-6,6,6,6,0,0,1-6-6" fill="none" stroke="#E0E0E0" strokeWidth="1.5"/>
       <path d="M15,9.5a1.5,1.5,0,0,1-3,0,1.5,1.5,0,0,1,3,0Z" fill="#F44336"/>
-      <path d="m19.5 15.5-3-3m0-7-3 3" stroke="#FFC107" stroke-width="2" stroke-linecap="round"/>
+      <path d="m19.5 15.5-3-3m0-7-3 3" stroke="#FFC107" strokeWidth="2" strokeLinecap="round"/>
     </svg>
   );
 }
@@ -218,8 +218,8 @@ export function BobOmbIcon(props: SVGProps<SVGSVGElement>) {
       {...props}
     >
       <circle cx="12" cy="14" r="8" fill="#212121" stroke="#BDBDBD" strokeWidth="1"/>
-      <path d="M12,2v4m-2,0h4" stroke="#757575" stroke-width="1.5" stroke-linecap="round"/>
-      <path d="m16 4 2-2" stroke="#FFC107" stroke-width="2" stroke-linecap="round"/>
+      <path d="M12,2v4m-2,0h4" stroke="#757575" strokeWidth="1.5" strokeLinecap="round"/>
+      <path d="m16 4 2-2" stroke="#FFC107" strokeWidth="2" strokeLinecap="round"/>
       <rect x="8" y="18" width="8" height="4" rx="1.5" fill="#FFC107"/>
     </svg>
   );
@@ -266,7 +266,7 @@ export function BooIcon(props: SVGProps<SVGSVGElement>) {
       {...props}
     >
       <path d="M12,2A10,10,0,0,0,3.5,17.4a10,10,0,0,0,17,0A10,10,0,0,0,12,2Zm3.5,11a1.5,1.5,0,0,1-3,0V11a1.5,1.5,0,0,1,3,0Zm-7,0a1.5,1.5,0,0,1-3,0V11a1.5,1.5,0,0,1,3,0Z" fill="#FFFFFF" stroke="#9E9E9E" strokeWidth="1"/>
-      <path d="M12,15.5a4.5,4.5,0,0,1,4.5-4.5h0a4.5,4.5,0,0,1,4.5,4.5" fill="none" stroke="#F48FB1" strokeWidth="1.5" stroke-linecap="round"/>
+      <path d="M12,15.5a4.5,4.5,0,0,1,4.5-4.5h0a4.5,4.5,0,0,1,4.5,4.5" fill="none" stroke="#F48FB1" strokeWidth="1.5" strokeLinecap="round"/>
     </svg>
   );
 }
@@ -392,5 +392,3 @@ export function DashFoodIcon(props: SVGProps<SVGSVGElement>) {
     </svg>
   );
 }
-
-    
