@@ -32,7 +32,6 @@ import {
   FeatherIcon,
   SuperStarIcon,
   LightningIcon,
-  CoinShellIcon,
   HammerIcon,
   KamekIcon,
   DashFoodIcon,
@@ -50,7 +49,6 @@ const AVAILABLE_ITEMS = [
   { type: "shell" as ItemType, name: "Green Shell", icon: ShellIcon },
   { type: "red-shell" as ItemType, name: "Red Shell", icon: RedShellIcon },
   { type: "blue-shell" as ItemType, name: "Blue Shell", icon: BlueShellIcon },
-  { type: "coin-shell" as ItemType, name: "Coin Shell", icon: CoinShellIcon },
   { type: "fire-flower" as ItemType, name: "Fire Flower", icon: FireFlowerIcon },
   { type: "ice-flower" as ItemType, name: "Ice Flower", icon: IceFlowerIcon },
   { type: "boomerang-flower" as ItemType, name: "Boomerang", icon: BoomerangFlowerIcon },
@@ -94,13 +92,14 @@ export function KartographerClient() {
 
   useEffect(() => {
     try {
-      const savedCustomLayouts = localStorage.getItem("kartographer-custom-layouts");
-      if (savedCustomLayouts) {
-        const customLayouts = JSON.parse(savedCustomLayouts);
-        // Combine default layouts with custom ones, ensuring no name clashes on initial load
-        const existingNames = new Set(defaultLayouts.map(l => l.name));
-        const uniqueCustomLayouts = customLayouts.filter((l: { name: string }) => !existingNames.has(l.name));
-        setLayouts(prev => [...prev, ...uniqueCustomLayouts]);
+      const savedCustomLayoutsJSON = localStorage.getItem("kartographer-custom-layouts");
+      if (savedCustomLayoutsJSON) {
+        const customLayouts = JSON.parse(savedCustomLayoutsJSON);
+        // Use a Map to ensure unique layout names, preventing key conflicts.
+        const combinedLayouts = new Map();
+        defaultLayouts.forEach(layout => combinedLayouts.set(layout.name, layout));
+        customLayouts.forEach((layout: { name: string, image: string, hint: string }) => combinedLayouts.set(layout.name, layout));
+        setLayouts(Array.from(combinedLayouts.values()));
       }
     } catch (error) {
       console.error("Failed to load custom layouts from localStorage", error);
@@ -115,7 +114,6 @@ export function KartographerClient() {
         const imageUrl = event.target?.result as string;
         const layoutNameFromFile = file.name.replace(/\.[^/.]+$/, "");
         
-        // This function will now be called within the setLayouts callback to ensure it has the latest layouts state
         const createUniqueLayout = (currentLayouts: typeof defaultLayouts) => {
           const existingNames = new Set(currentLayouts.map(l => l.name));
           let newLayoutName = layoutNameFromFile;
@@ -139,8 +137,7 @@ export function KartographerClient() {
             console.error("Failed to save custom layout to localStorage", error);
           }
           
-          setSelectedLayout(imageUrl);
-          setItems([]);
+          handleLayoutChange(newLayout.image);
           toast({ title: "Custom layout loaded and saved!" });
 
           return newLayoutsList;
@@ -268,6 +265,9 @@ export function KartographerClient() {
         setItems(items);
         setSelectedLayout(selectedLayout);
         toast({ title: "Layout Loaded!", description: "Let's get back to creating." });
+      } else {
+        // Load default if no save data
+        setSelectedLayout(defaultLayouts[0].image);
       }
     } catch (error) {
       toast({ variant: "destructive", title: "Oops!", description: "Could not load saved layout." });
@@ -385,7 +385,8 @@ export function KartographerClient() {
                 data-ai-hint={layouts.find(l => l.image === selectedLayout)?.hint}
             >
                 {items.map(item => {
-                    const ItemIcon = AVAILABLE_ITEMS.find(i => i.type === item.type)!.icon;
+                    const ItemIcon = AVAILABLE_ITEMS.find(i => i.type === item.type)?.icon;
+                    if (!ItemIcon) return null;
                     const isSelected = selectedItem === item.id;
                     return (
                         <div
