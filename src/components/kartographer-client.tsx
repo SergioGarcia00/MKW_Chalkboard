@@ -369,8 +369,9 @@ export function KartographerClient() {
                 className="w-full h-full rounded-lg shadow-inner relative overflow-hidden border-4 border-white"
                 style={{
                   backgroundImage: `url(${selectedLayout})`,
-                  backgroundSize: "cover",
+                  backgroundSize: "contain",
                   backgroundPosition: "center",
+                  backgroundRepeat: "no-repeat",
                 }}
                 data-ai-hint={layouts.find(l => l.image === selectedLayout)?.hint}
             >
