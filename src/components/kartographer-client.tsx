@@ -413,7 +413,7 @@ export function KartographerClient() {
                           <SelectContent>
                             {strokeStyles.map(style => (
                               <SelectItem key={style.value} value={style.value}>{style.name}</SelectItem>
-                            ))
+                            ))}
                           </SelectContent>
                         </Select>
                       </div>
