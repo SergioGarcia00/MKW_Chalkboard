@@ -338,7 +338,6 @@ export function KartographerClient() {
         width={32}
         height={32}
         className="object-contain"
-        unoptimized
       />
     );
   };
