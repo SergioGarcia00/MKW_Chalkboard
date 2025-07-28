@@ -17,30 +17,30 @@ import Image from "next/image";
 import { Slider } from "./ui/slider";
 
 const AVAILABLE_ITEMS: { type: ItemType; name: string; icon: string; }[] = [
-    { type: "item-box", name: "? Block", icon: "/images/MK8_Item_Box_Icon.png" },
-    { type: "mushroom", name: "Mushroom", icon: "/images/MK8_Mushroom_Icon.png" },
-    { type: "golden-mushroom", name: "Golden Mushroom", icon: "/images/MK8_Golden_Mushroom_Icon.png" },
-    { type: "mega-mushroom", name: "Mega Mushroom", icon: "/images/MK8_Mega_Mushroom_Icon.png" },
-    { type: "shell", name: "Green Shell", icon: "/images/MK8_Green_Shell_Icon.png" },
-    { type: "red-shell", name: "Red Shell", icon: "/images/MK8_Red_Shell_Icon.png" },
-    { type: "blue-shell", name: "Blue Shell", icon: "/images/MK8_Spiny_Shell_Icon.png" },
-    { type: "coin", name: "Coin", icon: "/images/MK8_Coin_Icon.png" },
-    { type: "fire-flower", name: "Fire Flower", icon: "/images/MK8_Fire_Flower_Icon.png" },
-    { type: "ice-flower", name: "Ice Flower", icon: "/images/Ice_Flower_-_Mario_Party_Superstars.png" },
-    { type: "boomerang-flower", name: "Boomerang", icon: "/images/MK8_Boomerang_Flower_Icon.png" },
-    { type: "bullet-bill", name: "Bullet Bill", icon: "/images/MK8_Bullet_Bill_Icon.png" },
-    { type: "bob-omb", name: "Bob-omb", icon: "/images/MK8_Bob-omb_Icon.png" },
-    { type: "hammer", name: "Hammer", icon: "/images/MKT_Icon_Hammer.png" },
-    { type: "super-horn", name: "Super Horn", icon: "/images/MK8_Super_Horn_Icon.png" },
-    { type: "boo", name: "Boo", icon: "/images/MK8_Boo_Icon.png" },
-    { type: "blooper", name: "Blooper", icon: "/images/MK8_Blooper_Icon.png" },
-    { type: "feather", name: "Feather", icon: "/images/MK8_Cape_Feather_Icon.png" },
-    { type: "super-star", name: "Super Star", icon: "/images/MK8_Super_Star_Icon.png" },
-    { type: "lightning", name: "Lightning", icon: "/images/MK8_Lightning_Icon.png" },
-    { type: "kamek", name: "Kamek", icon: "/images/MKT_Icon_Kamek.png" },
-    { type: "dash-food", name: "Dash Food", icon: "/images/MKT_Icon_Mushroom.png" },
-    { type: "player", name: "Player", icon: "/images/Mario_Icon.png" },
-    { type: "enemy", name: "Enemies", icon: "/images/Bowser_Icon.png" },
+    { type: "item-box", name: "? Block", icon: "/images/107px-MKW_Item_Box.png" },
+    { type: "mushroom", name: "Mushroom", icon: "/images/120px-MKW_Mushroom_Roulette.png" },
+    { type: "golden-mushroom", name: "Golden Mushroom", icon: "/images/100px-MKW_Golden_Mushroom_Item_Roulette.png" },
+    { type: "mega-mushroom", name: "Mega Mushroom", icon: "/images/120px-MKW_Mega_Mushroom_Roulette.png" },
+    { type: "shell", name: "Green Shell", icon: "/images/120px-MKW_Green_Shell_Roulette.png" },
+    { type: "red-shell", name: "Red Shell", icon: "/images/120px-MKW_Red_Shell_Roulette.png" },
+    { type: "blue-shell", name: "Blue Shell", icon: "/images/120px-MKW_Spiny_Shell_Roulette.png" },
+    { type: "coin", name: "Coin", icon: "/images/99px-MKW_Coin_Roulette.png" },
+    { type: "fire-flower", name: "Fire Flower", icon: "/images/115px-MKW_Fire_Flower_Roulette.png" },
+    { type: "ice-flower", name: "Ice Flower", icon: "/images/115px-MKW_Ice_Flower_Roulette.png" },
+    { type: "boomerang-flower", name: "Boomerang", icon: "/images/120px-MKW_Boomerang_Flower_Roulette.png" },
+    { type: "bullet-bill", name: "Bullet Bill", icon: "/images/120px-MKW_Bullet_Bill_Roulette.png" },
+    { type: "bob-omb", name: "Bob-omb", icon: "/images/120px-MKW_Bob-omb_Roulette.png" },
+    { type: "hammer", name: "Hammer", icon: "/images/110px-MKW_Hammer_Roulette.png" },
+    { type: "super-horn", name: "Super Horn", icon: "/images/120px-MKW_Super_Horn_Roulette.png" },
+    { type: "boo", name: "Boo", icon: "/images/120px-MKW_Boo_Roulette.png" },
+    { type: "blooper", name: "Blooper", icon: "/images/93px-MKW_Blooper_Roulette.png" },
+    { type: "feather", name: "Feather", icon: "/images/120px-MKW_Feather_Roulette.png" },
+    { type: "super-star", name: "Super Star", icon: "/images/120px-MKW_Super_Star_Roulette.png" },
+    { type: "lightning", name: "Lightning", icon: "/images/73px-MKW_Lightning_Roulette.png" },
+    { type: "kamek", name: "Kamek", icon: "/images/103px-MKW_Kamek_Roulette.png" },
+    { type: "dash-food", name: "Dash Food", icon: "/images/120px-MKWorld_Dash_Food_bag.png" },
+    { type: "player", name: "Player", icon: "/images/120px-MKW_Coin_Shell_Roulette.png" },
+    { type: "enemy", name: "Enemies", icon: "/images/120px-MKW_Triple_Banana_Roulette.png" },
 ];
 
 
@@ -114,7 +114,7 @@ export function KartographerClient() {
       const reader = new FileReader();
       reader.onload = (event) => {
         const imageUrl = event.target?.result as string;
-        const layoutNameFromFile = file.name.replace(/\.[^/.]+$/, "");
+        const layoutNameFromFile = file.name.replace(/.[^/.]+$/, "");
         
         const createUniqueLayout = (currentLayouts: typeof defaultLayouts) => {
           const existingNames = new Set(currentLayouts.map(l => l.name));
@@ -413,7 +413,7 @@ export function KartographerClient() {
                           <SelectContent>
                             {strokeStyles.map(style => (
                               <SelectItem key={style.value} value={style.value}>{style.name}</SelectItem>
-                            ))}
+                            ))
                           </SelectContent>
                         </Select>
                       </div>
@@ -549,5 +549,3 @@ export function KartographerClient() {
     </TooltipProvider>
   );
 }
-
-    
