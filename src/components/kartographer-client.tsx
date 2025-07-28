@@ -15,34 +15,37 @@ import { Download, Save, Trash2, RotateCw, Scaling, Upload, Pen, MousePointer, E
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { Slider } from "./ui/slider";
+import { ItemBoxIcon } from "./icons/item-box-icon";
+import { GoldenMushroomIcon } from "./icons/golden-mushroom-icon";
+import { MegaMushroomIcon } from "./icons/mega-mushroom-icon";
 
 
 const AVAILABLE_ITEMS = [
-  { type: "item-box" as ItemType, name: "? Block", icon: "https://mario.wiki.gallery/images/thumb/8/8c/MK8_Item_Box_Icon.png/48px-MK8_Item_Box_Icon.png" },
-  { type: "mushroom" as ItemType, name: "Mushroom", icon: "https://mario.wiki.gallery/images/thumb/a/a4/Mushroom_MK8.png/48px-Mushroom_MK8.png" },
-  { type: "golden-mushroom" as ItemType, name: "Golden Mushroom", icon: "https://mario.wiki.gallery/images/thumb/3/30/Golden_Mushroom_MK8.png/48px-Golden_Mushroom_MK8.png" },
-  { type: "mega-mushroom" as ItemType, name: "Mega Mushroom", icon: "https://mario.wiki.gallery/images/thumb/e/e0/Mega_Mushroom_icon.svg/48px-Mega_Mushroom_icon.svg.png" },
-  { type: "shell" as ItemType, name: "Green Shell", icon: "https://mario.wiki.gallery/images/thumb/f/f6/Green_Shell_MK8.png/48px-Green_Shell_MK8.png" },
-  { type: "red-shell" as ItemType, name: "Red Shell", icon: "https://mario.wiki.gallery/images/thumb/3/3a/Red_Shell_MK8.png/48px-Red_Shell_MK8.png" },
-  { type: "blue-shell" as ItemType, name: "Blue Shell", icon: "https://mario.wiki.gallery/images/thumb/8/85/Spiny_Shell_MK8.png/48px-Spiny_Shell_MK8.png" },
-  { type: "coin-shell" as ItemType, name: "Coin", icon: "https://mario.wiki.gallery/images/thumb/e/e3/Coin_MK8.png/48px-Coin_MK8.png" },
-  { type: "fire-flower" as ItemType, name: "Fire Flower", icon: "https://mario.wiki.gallery/images/thumb/0/09/Fire_Flower_MK8.png/48px-Fire_Flower_MK8.png" },
-  { type: "ice-flower" as ItemType, name: "Ice Flower", icon: "https://mario.wiki.gallery/images/thumb/7/77/MKT_Ice_Flower.png/48px-MKT_Ice_Flower.png" },
-  { type: "boomerang-flower" as ItemType, name: "Boomerang", icon: "https://mario.wiki.gallery/images/thumb/c/c4/Boomerang_Flower_MK8.png/48px-Boomerang_Flower_MK8.png" },
-  { type: "bullet-bill" as ItemType, name: "Bullet Bill", icon: "https://mario.wiki.gallery/images/thumb/b/b5/Bullet_Bill_MK8.png/48px-Bullet_Bill_MK8.png" },
-  { type: "bob-omb" as ItemType, name: "Bob-omb", icon: "https://mario.wiki.gallery/images/thumb/1/14/Bob-omb_MK8.png/48px-Bob-omb_MK8.png" },
-  { type: "hammer" as ItemType, name: "Hammer", icon: "https://mario.wiki.gallery/images/thumb/9/9e/MKT_Hammer.png/48px-MKT_Hammer.png" },
-  { type: "super-horn" as ItemType, name: "Super Horn", icon: "https://mario.wiki.gallery/images/thumb/3/3e/Super_Horn_MK8.png/48px-Super_Horn_MK8.png" },
-  { type: "coin" as ItemType, name: "Coin", icon: "https://mario.wiki.gallery/images/thumb/e/e3/Coin_MK8.png/48px-Coin_MK8.png" },
-  { type: "boo" as ItemType, name: "Boo", icon: "https://mario.wiki.gallery/images/thumb/0/05/Boo_MK8.png/48px-Boo_MK8.png" },
-  { type: "blooper" as ItemType, name: "Blooper", icon: "https://mario.wiki.gallery/images/thumb/8/87/Blooper_MK8.png/48px-Blooper_MK8.png" },
-  { type: "feather" as ItemType, name: "Feather", icon: "https://mario.wiki.gallery/images/thumb/d/d3/Cape_Feather_MKT_Icon.png/48px-Cape_Feather_MKT_Icon.png" },
-  { type: "super-star" as ItemType, name: "Super Star", icon: "https://mario.wiki.gallery/images/thumb/6/6d/Super_Star_MK8.png/48px-Super_Star_MK8.png" },
-  { type: "lightning" as ItemType, name: "Lightning", icon: "https://mario.wiki.gallery/images/thumb/3/3a/Lightning_MK8.png/48px-Lightning_MK8.png" },
-  { type: "kamek" as ItemType, name: "Kamek", icon: "https://mario.wiki.gallery/images/thumb/4/4c/MKT_Icon_Kamek.png/120px-MKT_Icon_Kamek.png" },
-  { type: "dash-food" as ItemType, name: "Dash Food", icon: "https://mario.wiki.gallery/images/thumb/f/f6/Mushroom_MKT_Icon.png/48px-Mushroom_MKT_Icon.png" },
-  { type: "player" as ItemType, name: "Player", icon: "https://mario.wiki.gallery/images/thumb/3/34/MKT_Icon_Mario.png/120px-MKT_Icon_Mario.png" },
-  { type: "enemy" as ItemType, name: "Enemies", icon: "https://mario.wiki.gallery/images/thumb/c/cf/MKT_Icon_Bowser.png/120px-MKT_Icon_Bowser.png" },
+  { type: "item-box" as ItemType, name: "? Block", icon: "item-box" },
+  { type: "mushroom" as ItemType, name: "Mushroom", icon: "🍄" },
+  { type: "golden-mushroom" as ItemType, name: "Golden Mushroom", icon: "golden-mushroom" },
+  { type: "mega-mushroom" as ItemType, name: "Mega Mushroom", icon: "mega-mushroom" },
+  { type: "shell" as ItemType, name: "Green Shell", icon: "🟢" },
+  { type: "red-shell" as ItemType, name: "Red Shell", icon: "🔴" },
+  { type: "blue-shell" as ItemType, name: "Blue Shell", icon: "🔵" },
+  { type: "coin-shell" as ItemType, name: "Coin", icon: "🟡" },
+  { type: "fire-flower" as ItemType, name: "Fire Flower", icon: "🔥" },
+  { type: "ice-flower" as ItemType, name: "Ice Flower", icon: "❄️" },
+  { type: "boomerang-flower" as ItemType, name: "Boomerang", icon: "🪃" },
+  { type: "bullet-bill" as ItemType, name: "Bullet Bill", icon: "🚀" },
+  { type: "bob-omb" as ItemType, name: "Bob-omb", icon: "💣" },
+  { type: "hammer" as ItemType, name: "Hammer", icon: "🔨" },
+  { type: "super-horn" as ItemType, name: "Super Horn", icon: "📣" },
+  { type: "coin" as ItemType, name: "Coin", icon: "🪙" },
+  { type: "boo" as ItemType, name: "Boo", icon: "👻" },
+  { type: "blooper" as ItemType, name: "Blooper", icon: "🦑" },
+  { type: "feather" as ItemType, name: "Feather", icon: "🪶" },
+  { type: "super-star" as ItemType, name: "Super Star", icon: "🌟" },
+  { type: "lightning" as ItemType, name: "Lightning", icon: "⚡️" },
+  { type: "kamek" as ItemType, name: "Kamek", icon: "🧙" },
+  { type: "dash-food" as ItemType, name: "Dash Food", icon: "🌶️" },
+  { type: "player" as ItemType, name: "Player", icon: "😀" },
+  { type: "enemy" as ItemType, name: "Enemies", icon: "👽" },
 ];
 
 
@@ -331,18 +334,22 @@ export function KartographerClient() {
     toast({ title: "Canvas Cleared", description: "Ready for a fresh start!" });
   };
 
-  const renderItemIcon = (iconUrl: string, itemName: string, isSidebar: boolean) => {
-    const size = isSidebar ? 32 : (ITEM_SIZE);
-    return (
-      <Image
-        src={iconUrl}
-        alt={itemName}
-        width={size}
-        height={size}
-        className="object-contain"
-        unoptimized
-      />
-    );
+  const renderItemIcon = (icon: string, itemName: string) => {
+    const size = 32;
+    switch (icon) {
+      case 'item-box':
+        return <ItemBoxIcon />;
+      case 'golden-mushroom':
+        return <GoldenMushroomIcon />;
+      case 'mega-mushroom':
+        return <MegaMushroomIcon />;
+      default:
+        return (
+          <div style={{ fontSize: `${size * 0.8}px` }} className="flex items-center justify-center">
+            {icon}
+          </div>
+        );
+    }
   };
   
   const strokeStyles = [
@@ -359,6 +366,34 @@ export function KartographerClient() {
           <p className="text-center text-sm text-muted-foreground mb-4">Build your dream track!</p>
           <Separator />
           <div className="flex-grow overflow-y-auto py-4 pr-2">
+            <Card className="mb-4 bg-transparent border-primary/30">
+              <CardHeader className="p-4">
+                <CardTitle className="text-lg">Track Layouts</CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 pt-0 space-y-4">
+                <Select value={selectedLayout} onValueChange={handleLayoutChange}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Choose a layout" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {layouts.map(layout => (
+                      <SelectItem key={layout.name} value={layout.image}>{layout.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                 <Input
+                  type="file"
+                  ref={fileInputRef}
+                  className="hidden"
+                  accept="image/png, image/jpeg, image/webp"
+                  onChange={handleImageUpload}
+                />
+                <Button variant="outline" className="w-full" onClick={() => fileInputRef.current?.click()}>
+                  <Upload className="mr-2 h-4 w-4" />
+                  Import Custom
+                </Button>
+              </CardContent>
+            </Card>
             <Card className="mb-4 bg-transparent border-primary/30">
               <CardHeader className="p-4">
                 <CardTitle className="text-lg">Tools</CardTitle>
@@ -401,34 +436,6 @@ export function KartographerClient() {
                   )}
               </CardContent>
             </Card>
-            <Card className="mb-4 bg-transparent border-primary/30">
-              <CardHeader className="p-4">
-                <CardTitle className="text-lg">Track Layouts</CardTitle>
-              </CardHeader>
-              <CardContent className="p-4 pt-0 space-y-4">
-                <Select value={selectedLayout} onValueChange={handleLayoutChange}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Choose a layout" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {layouts.map(layout => (
-                      <SelectItem key={layout.name} value={layout.image}>{layout.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                 <Input
-                  type="file"
-                  ref={fileInputRef}
-                  className="hidden"
-                  accept="image/png, image/jpeg, image/webp"
-                  onChange={handleImageUpload}
-                />
-                <Button variant="outline" className="w-full" onClick={() => fileInputRef.current?.click()}>
-                  <Upload className="mr-2 h-4 w-4" />
-                  Import Custom
-                </Button>
-              </CardContent>
-            </Card>
             <Card className="bg-transparent border-primary/30">
               <CardHeader className="p-4">
                 <CardTitle className="text-lg">Items</CardTitle>
@@ -443,7 +450,7 @@ export function KartographerClient() {
                         className="p-2 border border-dashed border-primary/50 rounded-lg flex flex-col items-center justify-center aspect-square cursor-grab active:cursor-grabbing transition-all hover:bg-primary/10 hover:shadow-md"
                       >
                          <div className="w-8 h-8 flex items-center justify-center">
-                           {renderItemIcon(icon, name, true)}
+                           {renderItemIcon(icon, name)}
                          </div>
                         <span className="text-xs text-center mt-1">{name}</span>
                       </div>
@@ -524,7 +531,7 @@ export function KartographerClient() {
                         >
                             <div className={cn("w-full h-full relative group transition-all flex items-center justify-center", isSelected && "outline-2 outline-dashed outline-accent rounded-lg")}>
                                 <div className="w-full h-full flex items-center justify-center">
-                                  {renderItemIcon(itemData.icon, itemData.name, false)}
+                                  {renderItemIcon(itemData.icon, itemData.name)}
                                 </div>
                                 {isSelected && (
                                 <TooltipProvider>
