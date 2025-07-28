@@ -15,13 +15,16 @@ import { Download, Save, Trash2, RotateCw, Scaling, Upload, Pen, MousePointer, E
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { Slider } from "./ui/slider";
+import { GoldenMushroomIcon } from "./icons/golden-mushroom-icon";
+import { ItemBoxIcon } from "./icons/item-box-icon";
+import { MegaMushroomIcon } from "./icons/mega-mushroom-icon";
 
 
-const AVAILABLE_ITEMS = [
-    { type: "item-box" as ItemType, name: "? Block", icon: "/images/MK8_Item_Box_Icon.png" },
+const AVAILABLE_ITEMS: { type: ItemType; name: string; icon: React.ComponentType | string; }[] = [
+    { type: "item-box" as ItemType, name: "? Block", icon: ItemBoxIcon },
     { type: "mushroom" as ItemType, name: "Mushroom", icon: "/images/MK8_Mushroom_Icon.png" },
-    { type: "golden-mushroom" as ItemType, name: "Golden Mushroom", icon: "/images/MK8_Golden_Mushroom_Icon.png" },
-    { type: "mega-mushroom" as ItemType, name: "Mega Mushroom", icon: "/images/New_Super_Mario_Bros._Mega_Mushroom.png" },
+    { type: "golden-mushroom" as ItemType, name: "Golden Mushroom", icon: GoldenMushroomIcon },
+    { type: "mega-mushroom" as ItemType, name: "Mega Mushroom", icon: MegaMushroomIcon },
     { type: "shell" as ItemType, name: "Green Shell", icon: "/images/MK8_Green_Shell_Icon.png" },
     { type: "red-shell" as ItemType, name: "Red Shell", icon: "/images/MK8_Red_Shell_Icon.png" },
     { type: "blue-shell" as ItemType, name: "Blue Shell", icon: "/images/MK8_Spiny_Shell_Icon.png" },
@@ -330,16 +333,20 @@ export function KartographerClient() {
     toast({ title: "Canvas Cleared", description: "Ready for a fresh start!" });
   };
 
-  const renderItemIcon = (icon: string, itemName: string) => {
-    return (
-      <Image
-        src={icon}
-        alt={itemName}
-        width={32}
-        height={32}
-        className="object-contain"
-      />
-    );
+  const renderItemIcon = (icon: string | React.ComponentType, itemName: string) => {
+    if (typeof icon === 'string') {
+      return (
+        <Image
+          src={icon}
+          alt={itemName}
+          width={32}
+          height={32}
+          className="object-contain"
+        />
+      );
+    }
+    const IconComponent = icon;
+    return <IconComponent />;
   };
   
   const strokeStyles = [
