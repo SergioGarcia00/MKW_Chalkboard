@@ -15,34 +15,7 @@ import { Download, Save, Trash2, RotateCw, Scaling, Upload, Pen, MousePointer, E
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { Slider } from "./ui/slider";
-
-const AVAILABLE_ITEMS: { type: ItemType; name: string; icon: string; }[] = [
-    { type: "item-box", name: "? Block", icon: "/images/107px-MKW_Item_Box.png" },
-    { type: "mushroom", name: "Mushroom", icon: "/images/120px-MKW_Mushroom_Roulette.png" },
-    { type: "golden-mushroom", name: "Golden Mushroom", icon: "/images/100px-MKW_Golden_Mushroom_Item_Roulette.png" },
-    { type: "mega-mushroom", name: "Mega Mushroom", icon: "/images/120px-MKW_Mega_Mushroom_Roulette.png" },
-    { type: "shell", name: "Green Shell", icon: "/images/120px-MKW_Green_Shell_Roulette.png" },
-    { type: "red-shell", name: "Red Shell", icon: "/images/120px-MKW_Red_Shell_Roulette.png" },
-    { type: "blue-shell", name: "Blue Shell", icon: "/images/120px-MKW_Spiny_Shell_Roulette.png" },
-    { type: "coin", name: "Coin", icon: "/images/99px-MKW_Coin_Roulette.png" },
-    { type: "fire-flower", name: "Fire Flower", icon: "/images/115px-MKW_Fire_Flower_Roulette.png" },
-    { type: "ice-flower", name: "Ice Flower", icon: "/images/115px-MKW_Ice_Flower_Roulette.png" },
-    { type: "boomerang-flower", name: "Boomerang", icon: "/images/120px-MKW_Boomerang_Flower_Roulette.png" },
-    { type: "bullet-bill", name: "Bullet Bill", icon: "/images/120px-MKW_Bullet_Bill_Roulette.png" },
-    { type: "bob-omb", name: "Bob-omb", icon: "/images/120px-MKW_Bob-omb_Roulette.png" },
-    { type: "hammer", name: "Hammer", icon: "/images/110px-MKW_Hammer_Roulette.png" },
-    { type: "super-horn", name: "Super Horn", icon: "/images/120px-MKW_Super_Horn_Roulette.png" },
-    { type: "boo", name: "Boo", icon: "/images/120px-MKW_Boo_Roulette.png" },
-    { type: "blooper", name: "Blooper", icon: "/images/93px-MKW_Blooper_Roulette.png" },
-    { type: "feather", name: "Feather", icon: "/images/120px-MKW_Feather_Roulette.png" },
-    { type: "super-star", name: "Super Star", icon: "/images/120px-MKW_Super_Star_Roulette.png" },
-    { type: "lightning", name: "Lightning", icon: "/images/73px-MKW_Lightning_Roulette.png" },
-    { type: "kamek", name: "Kamek", icon: "/images/103px-MKW_Kamek_Roulette.png" },
-    { type: "dash-food", name: "Dash Food", icon: "/images/120px-MKWorld_Dash_Food_bag.png" },
-    { type: "player", name: "Player", icon: "/images/120px-MKW_Coin_Shell_Roulette.png" },
-    { type: "enemy", name: "Enemies", icon: "/images/120px-MKW_Triple_Banana_Roulette.png" },
-];
-
+import { AVAILABLE_ITEMS, iconMap } from "./icon-map";
 
 const defaultLayouts = [
   { name: "Moo Moo Meadows", image: "https://placehold.co/1024x768.png", hint: "grassy field" },
@@ -329,14 +302,17 @@ export function KartographerClient() {
     toast({ title: "Canvas Cleared", description: "Ready for a fresh start!" });
   };
 
-  const renderItemIcon = (icon: string, itemName: string) => {
+  const renderItemIcon = (itemType: ItemType, itemName: string) => {
+    const iconSrc = iconMap[itemType];
+    if (!iconSrc) return null;
     return (
       <Image
-        src={icon}
+        src={iconSrc}
         alt={itemName}
         width={32}
         height={32}
         className="object-contain"
+        unoptimized
       />
     );
   };
@@ -430,7 +406,7 @@ export function KartographerClient() {
                 <CardTitle className="text-lg">Items</CardTitle>
               </CardHeader>
               <CardContent className={cn("p-4 pt-0 grid grid-cols-3 gap-4", mode !== 'place' && "opacity-50 pointer-events-none")}>
-                {AVAILABLE_ITEMS.map(({ type, name, icon }) => (
+                {AVAILABLE_ITEMS.map(({ type, name }) => (
                   <Tooltip key={type}>
                     <TooltipTrigger asChild>
                       <div
@@ -439,7 +415,7 @@ export function KartographerClient() {
                         className="p-2 border border-dashed border-primary/50 rounded-lg flex flex-col items-center justify-center aspect-square cursor-grab active:cursor-grabbing transition-all hover:bg-primary/10 hover:shadow-md"
                       >
                          <div className="w-8 h-8 flex items-center justify-center">
-                           {renderItemIcon(icon, name)}
+                           {renderItemIcon(type, name)}
                          </div>
                         <span className="text-xs text-center mt-1">{name}</span>
                       </div>
@@ -520,7 +496,7 @@ export function KartographerClient() {
                         >
                             <div className={cn("w-full h-full relative group transition-all flex items-center justify-center", isSelected && "outline-2 outline-dashed outline-accent rounded-lg")}>
                                 <div className="w-full h-full flex items-center justify-center">
-                                  {renderItemIcon(itemData.icon, itemData.name)}
+                                  {renderItemIcon(itemData.type, itemData.name)}
                                 </div>
                                 {isSelected && (
                                 <TooltipProvider>
