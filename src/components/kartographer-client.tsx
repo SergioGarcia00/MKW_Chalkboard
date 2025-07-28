@@ -15,36 +15,32 @@ import { Download, Save, Trash2, RotateCw, Scaling, Upload, Pen, MousePointer, E
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { Slider } from "./ui/slider";
-import { GoldenMushroomIcon } from "./icons/golden-mushroom-icon";
-import { ItemBoxIcon } from "./icons/item-box-icon";
-import { MegaMushroomIcon } from "./icons/mega-mushroom-icon";
 
-
-const AVAILABLE_ITEMS: { type: ItemType; name: string; icon: React.ComponentType | string; }[] = [
-    { type: "item-box" as ItemType, name: "? Block", icon: ItemBoxIcon },
-    { type: "mushroom" as ItemType, name: "Mushroom", icon: "/images/MK8_Mushroom_Icon.png" },
-    { type: "golden-mushroom" as ItemType, name: "Golden Mushroom", icon: GoldenMushroomIcon },
-    { type: "mega-mushroom" as ItemType, name: "Mega Mushroom", icon: MegaMushroomIcon },
-    { type: "shell" as ItemType, name: "Green Shell", icon: "/images/MK8_Green_Shell_Icon.png" },
-    { type: "red-shell" as ItemType, name: "Red Shell", icon: "/images/MK8_Red_Shell_Icon.png" },
-    { type: "blue-shell" as ItemType, name: "Blue Shell", icon: "/images/MK8_Spiny_Shell_Icon.png" },
-    { type: "coin" as ItemType, name: "Coin", icon: "/images/MK8_Coin_Icon.png" },
-    { type: "fire-flower" as ItemType, name: "Fire Flower", icon: "/images/MK8_Fire_Flower_Icon.png" },
-    { type: "ice-flower" as ItemType, name: "Ice Flower", icon: "/images/Ice_Flower_-_Mario_Party_Superstars.png" },
-    { type: "boomerang-flower" as ItemType, name: "Boomerang", icon: "/images/MK8_Boomerang_Flower_Icon.png" },
-    { type: "bullet-bill" as ItemType, name: "Bullet Bill", icon: "/images/MK8_Bullet_Bill_Icon.png" },
-    { type: "bob-omb" as ItemType, name: "Bob-omb", icon: "/images/MK8_Bob-omb_Icon.png" },
-    { type: "hammer" as ItemType, name: "Hammer", icon: "/images/MKT_Icon_Hammer.png" },
-    { type: "super-horn" as ItemType, name: "Super Horn", icon: "/images/MK8_Super_Horn_Icon.png" },
-    { type: "boo" as ItemType, name: "Boo", icon: "/images/MK8_Boo_Icon.png" },
-    { type: "blooper" as ItemType, name: "Blooper", icon: "/images/MK8_Blooper_Icon.png" },
-    { type: "feather" as ItemType, name: "Feather", icon: "/images/MK8_Cape_Feather_Icon.png" },
-    { type: "super-star" as ItemType, name: "Super Star", icon: "/images/MK8_Super_Star_Icon.png" },
-    { type: "lightning" as ItemType, name: "Lightning", icon: "/images/MK8_Lightning_Icon.png" },
-    { type: "kamek" as ItemType, name: "Kamek", icon: "/images/MKT_Icon_Kamek.png" },
-    { type: "dash-food" as ItemType, name: "Dash Food", icon: "/images/MKT_Icon_Mushroom.png" },
-    { type: "player" as ItemType, name: "Player", icon: "/images/Mario_Icon.png" },
-    { type: "enemy" as ItemType, name: "Enemies", icon: "/images/Bowser_Icon.png" },
+const AVAILABLE_ITEMS: { type: ItemType; name: string; icon: string; }[] = [
+    { type: "item-box", name: "? Block", icon: "/images/MK8_Item_Box_Icon.png" },
+    { type: "mushroom", name: "Mushroom", icon: "/images/MK8_Mushroom_Icon.png" },
+    { type: "golden-mushroom", name: "Golden Mushroom", icon: "/images/MK8_Golden_Mushroom_Icon.png" },
+    { type: "mega-mushroom", name: "Mega Mushroom", icon: "/images/MK8_Mega_Mushroom_Icon.png" },
+    { type: "shell", name: "Green Shell", icon: "/images/MK8_Green_Shell_Icon.png" },
+    { type: "red-shell", name: "Red Shell", icon: "/images/MK8_Red_Shell_Icon.png" },
+    { type: "blue-shell", name: "Blue Shell", icon: "/images/MK8_Spiny_Shell_Icon.png" },
+    { type: "coin", name: "Coin", icon: "/images/MK8_Coin_Icon.png" },
+    { type: "fire-flower", name: "Fire Flower", icon: "/images/MK8_Fire_Flower_Icon.png" },
+    { type: "ice-flower", name: "Ice Flower", icon: "/images/Ice_Flower_-_Mario_Party_Superstars.png" },
+    { type: "boomerang-flower", name: "Boomerang", icon: "/images/MK8_Boomerang_Flower_Icon.png" },
+    { type: "bullet-bill", name: "Bullet Bill", icon: "/images/MK8_Bullet_Bill_Icon.png" },
+    { type: "bob-omb", name: "Bob-omb", icon: "/images/MK8_Bob-omb_Icon.png" },
+    { type: "hammer", name: "Hammer", icon: "/images/MKT_Icon_Hammer.png" },
+    { type: "super-horn", name: "Super Horn", icon: "/images/MK8_Super_Horn_Icon.png" },
+    { type: "boo", name: "Boo", icon: "/images/MK8_Boo_Icon.png" },
+    { type: "blooper", name: "Blooper", icon: "/images/MK8_Blooper_Icon.png" },
+    { type: "feather", name: "Feather", icon: "/images/MK8_Cape_Feather_Icon.png" },
+    { type: "super-star", name: "Super Star", icon: "/images/MK8_Super_Star_Icon.png" },
+    { type: "lightning", name: "Lightning", icon: "/images/MK8_Lightning_Icon.png" },
+    { type: "kamek", name: "Kamek", icon: "/images/MKT_Icon_Kamek.png" },
+    { type: "dash-food", name: "Dash Food", icon: "/images/MKT_Icon_Mushroom.png" },
+    { type: "player", name: "Player", icon: "/images/Mario_Icon.png" },
+    { type: "enemy", name: "Enemies", icon: "/images/Bowser_Icon.png" },
 ];
 
 
@@ -333,20 +329,16 @@ export function KartographerClient() {
     toast({ title: "Canvas Cleared", description: "Ready for a fresh start!" });
   };
 
-  const renderItemIcon = (icon: string | React.ComponentType, itemName: string) => {
-    if (typeof icon === 'string') {
-      return (
-        <Image
-          src={icon}
-          alt={itemName}
-          width={32}
-          height={32}
-          className="object-contain"
-        />
-      );
-    }
-    const IconComponent = icon;
-    return <IconComponent />;
+  const renderItemIcon = (icon: string, itemName: string) => {
+    return (
+      <Image
+        src={icon}
+        alt={itemName}
+        width={32}
+        height={32}
+        className="object-contain"
+      />
+    );
   };
   
   const strokeStyles = [
@@ -557,3 +549,5 @@ export function KartographerClient() {
     </TooltipProvider>
   );
 }
+
+    
