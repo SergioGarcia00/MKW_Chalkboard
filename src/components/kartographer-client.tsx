@@ -76,6 +76,13 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
       console.error("Failed to load layout from localStorage", error);
     }
   }, [initialLayouts, selectedLayout]);
+  
+   useEffect(() => {
+    setLayouts(initialLayouts);
+    if (!initialLayouts.some(l => l.image === selectedLayout)) {
+      setSelectedLayout(initialLayouts.length > 0 ? initialLayouts[0].image : '');
+    }
+  }, [initialLayouts]);
 
   const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -519,5 +526,3 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
     </TooltipProvider>
   );
 }
-
-    

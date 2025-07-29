@@ -21,8 +21,7 @@ export default function Home() {
       });
   } catch (error) {
     console.error("Could not read maps directory:", error);
-    // You can provide a default or empty layout list in case of an error
-    layoutObjects = [{ name: "No tracks found", image: "https://placehold.co/1024x768.png", hint: "placeholder" }];
+    // Provide a default or empty layout list in case of an error
   }
   
   // Add default layouts if no custom maps are found
