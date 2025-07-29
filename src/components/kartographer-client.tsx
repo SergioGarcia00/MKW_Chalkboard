@@ -449,7 +449,7 @@ export function KartographerClient() {
                 onMouseUp={handleCanvasMouseUp}
                 onMouseLeave={handleCanvasMouseUp}
                 className={cn(
-                  "w-full h-full rounded-lg shadow-inner relative overflow-hidden border-4 border-white",
+                  "w-full h-full rounded-lg shadow-inner relative overflow-hidden border-4 border-border",
                   mode === 'draw' ? 'cursor-crosshair' : 'cursor-default'
                 )}
                 style={{
