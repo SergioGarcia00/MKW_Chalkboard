@@ -314,10 +314,10 @@ export function KartographerClient() {
     <TooltipProvider>
       <div className="flex h-screen w-full bg-background font-headline text-foreground overflow-hidden">
         <aside className="w-[320px] h-full bg-card border-r border-border flex flex-col p-4 shadow-lg">
-          <div className="flex items-center mb-4 space-x-4">
-            <Image src={logo} alt="Jet Joker Logo" width={80} height={80} unoptimized />
+          <div className="flex items-center mb-4 space-x-2">
+            <Image src={logo} alt="MKW Chalkboard Logo" width={50} height={50} unoptimized />
             <div className="flex flex-col">
-              <h1 className="text-2xl font-bold text-primary whitespace-nowrap">MKW Chalkboard</h1>
+              <h1 className="text-xl font-bold text-primary whitespace-nowrap">MKW Chalkboard</h1>
               <p className="text-xs text-muted-foreground whitespace-nowrap">mario kart world track planner</p>
             </div>
           </div>
