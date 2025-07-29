@@ -315,7 +315,7 @@ export function KartographerClient() {
       <div className="flex h-screen w-full bg-background font-headline text-foreground overflow-hidden">
         <aside className="w-[320px] h-full bg-card border-r border-border flex flex-col p-4 shadow-lg">
           <div className="flex items-center mb-4 space-x-2">
-            <Image src={logo} alt="MKW Chalkboard Logo" width={50} height={50} unoptimized />
+            <Image src={logo} alt="MKW Chalkboard Logo" width={55} height={55} unoptimized />
             <div className="flex flex-col">
               <h1 className="text-xl font-bold text-primary whitespace-nowrap">MKW Chalkboard</h1>
               <p className="text-xs text-muted-foreground whitespace-nowrap">mario kart world track planner</p>
