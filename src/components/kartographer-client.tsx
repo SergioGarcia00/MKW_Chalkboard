@@ -16,7 +16,6 @@ import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { Slider } from "./ui/slider";
 import { AVAILABLE_ITEMS, iconMap } from "./icon-map";
-import logo from './icons/logo.png';
 
 
 const defaultLayouts = [
@@ -314,10 +313,11 @@ export function KartographerClient() {
     <TooltipProvider>
       <div className="flex h-screen w-full bg-background font-headline text-foreground overflow-hidden">
         <aside className="w-[320px] h-full bg-card border-r border-border flex flex-col p-4 shadow-lg">
-          <div className="flex flex-col items-center justify-center text-center mb-4">
+          <div className="flex items-center justify-center text-center mb-4 space-x-2">
+            <Image src={iconMap['item-box']} alt="MKW Architect Logo" width={40} height={40} unoptimized />
             <h1 className="text-3xl font-bold text-primary">MKW Architect</h1>
-            <p className="text-sm text-muted-foreground">Build your dream track!</p>
           </div>
+          <p className="text-sm text-muted-foreground text-center mb-4">Build your dream track!</p>
           <Separator />
           <div className="flex-grow overflow-y-auto py-4 pr-2">
             <Card className="mb-4 bg-transparent border-border">
@@ -484,9 +484,10 @@ export function KartographerClient() {
                             style={{
                                 left: `${item.x}px`,
                                 top: `${item.y}px`,
-                                width: `${scaledItemSize * item.scale}px`,
-                                height: `${scaledItemSize * item.scale}px`,
-                                transform: `rotate(${item.rotation}deg)`,
+                                width: `${scaledItemSize}px`,
+                                height: `${scaledItemSize}px`,
+                                transform: `rotate(${item.rotation}deg) scale(${item.scale})`,
+                                transformOrigin: 'center center',
                             }}
                             onMouseDown={(e) => handleItemMouseDown(e, item.id, 'move')}
                         >
@@ -502,16 +503,20 @@ export function KartographerClient() {
                                 <TooltipProvider>
                                     <div 
                                         className="absolute -top-3 -left-3 w-6 h-6 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center cursor-pointer hover:scale-110 transition-transform"
-                                        onMouseDown={(e) => e.stopPropagation()} onClick={(e) => deleteItem(e, item.id)}>
+                                        onMouseDown={(e) => e.stopPropagation()} onClick={(e) => deleteItem(e, item.id)}
+                                        style={{transform: `scale(${1/item.scale})`}}
+                                        >
                                         <Trash2 size={14} />
                                     </div>
                                     <div
                                         className="absolute -top-4 left-1/2 -translate-x-1/2 w-6 h-6 bg-secondary text-secondary-foreground rounded-full flex items-center justify-center cursor-alias hover:scale-110 transition-transform"
                                         onMouseDown={(e) => handleItemMouseDown(e, item.id, 'rotate')}
+                                        style={{transform: `scale(${1/item.scale})`}}
                                     ><RotateCw size={14} /></div>
                                     <div
                                         className="absolute -bottom-3 -right-3 w-6 h-6 bg-secondary text-secondary-foreground rounded-full flex items-center justify-center cursor-nwse-resize hover:scale-110 transition-transform"
                                         onMouseDown={(e) => handleItemMouseDown(e, item.id, 'scale')}
+                                        style={{transform: `scale(${1/item.scale})`}}
                                     ><Scaling size={14} /></div>
                                 </TooltipProvider>
                                 )}
