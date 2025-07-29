@@ -36,7 +36,7 @@ export function KartographerClient() {
   const [mode, setMode] = useState<'place' | 'draw'>('place');
   const [isDrawing, setIsDrawing] = useState(false);
   
-  const [drawColor, setDrawColor] = useState("#000000");
+  const [drawColor, setDrawColor] = useState("#FF0000");
   const [strokeWidth, setStrokeWidth] = useState(5);
   const [strokeDash, setStrokeDash] = useState("none");
 
@@ -326,12 +326,12 @@ export function KartographerClient() {
   return (
     <TooltipProvider>
       <div className="flex h-screen w-full bg-background font-headline text-foreground overflow-hidden">
-        <aside className="w-[320px] h-full bg-white/50 border-r border-primary/20 flex flex-col p-4 shadow-lg">
-          <h1 className="text-3xl font-bold text-primary text-center">Kartographer</h1>
+        <aside className="w-[320px] h-full bg-card border-r border-border flex flex-col p-4 shadow-lg">
+          <h1 className="text-3xl font-bold text-primary text-center">Track Architect</h1>
           <p className="text-center text-sm text-muted-foreground mb-4">Build your dream track!</p>
           <Separator />
           <div className="flex-grow overflow-y-auto py-4 pr-2">
-            <Card className="mb-4 bg-transparent border-primary/30">
+            <Card className="mb-4 bg-transparent border-border">
               <CardHeader className="p-4">
                 <CardTitle className="text-lg">Track Layouts</CardTitle>
               </CardHeader>
@@ -359,7 +359,7 @@ export function KartographerClient() {
                 </Button>
               </CardContent>
             </Card>
-            <Card className="mb-4 bg-transparent border-primary/30">
+            <Card className="mb-4 bg-transparent border-border">
               <CardHeader className="p-4">
                 <CardTitle className="text-lg">Tools</CardTitle>
               </CardHeader>
@@ -377,7 +377,7 @@ export function KartographerClient() {
                     Clear Canvas
                   </Button>
                    {mode === 'draw' && (
-                    <div className="space-y-4 pt-4 border-t border-primary/20">
+                    <div className="space-y-4 pt-4 border-t border-border">
                       <div>
                         <label className="text-sm font-medium">Color</label>
                         <Input type="color" value={drawColor} onChange={(e) => setDrawColor(e.target.value)} className="p-1 h-10" />
@@ -401,7 +401,7 @@ export function KartographerClient() {
                   )}
               </CardContent>
             </Card>
-            <Card className="bg-transparent border-primary/30">
+            <Card className="bg-transparent border-border">
               <CardHeader className="p-4">
                 <CardTitle className="text-lg">Items</CardTitle>
               </CardHeader>
@@ -412,7 +412,7 @@ export function KartographerClient() {
                       <div
                         draggable
                         onDragStart={(e) => handleDragStart(e, type)}
-                        className="p-2 border border-dashed border-primary/50 rounded-lg flex flex-col items-center justify-center aspect-square cursor-grab active:cursor-grabbing transition-all hover:bg-primary/10 hover:shadow-md"
+                        className="p-2 border border-dashed border-border rounded-lg flex flex-col items-center justify-center aspect-square cursor-grab active:cursor-grabbing transition-all hover:bg-primary/10 hover:shadow-md"
                       >
                          <div className="w-8 h-8 flex items-center justify-center">
                            {renderItemIcon(type, name)}
