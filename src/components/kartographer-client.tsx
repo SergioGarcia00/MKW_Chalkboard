@@ -16,6 +16,8 @@ import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { Slider } from "./ui/slider";
 import { AVAILABLE_ITEMS, iconMap } from "./icon-map";
+import logo from './icons/logo.png';
+
 
 const defaultLayouts = [
   { name: "Moo Moo Meadows", image: "https://placehold.co/1024x768.png", hint: "grassy field" },
@@ -312,8 +314,10 @@ export function KartographerClient() {
     <TooltipProvider>
       <div className="flex h-screen w-full bg-background font-headline text-foreground overflow-hidden">
         <aside className="w-[320px] h-full bg-card border-r border-border flex flex-col p-4 shadow-lg">
-          <h1 className="text-3xl font-bold text-primary text-center">Track Architect</h1>
-          <p className="text-center text-sm text-muted-foreground mb-4">Build your dream track!</p>
+          <div className="flex flex-col items-center justify-center text-center mb-4">
+            <h1 className="text-3xl font-bold text-primary">MKW Architect</h1>
+            <p className="text-sm text-muted-foreground">Build your dream track!</p>
+          </div>
           <Separator />
           <div className="flex-grow overflow-y-auto py-4 pr-2">
             <Card className="mb-4 bg-transparent border-border">
@@ -487,15 +491,13 @@ export function KartographerClient() {
                             onMouseDown={(e) => handleItemMouseDown(e, item.id, 'move')}
                         >
                             <div className={cn("w-full h-full relative group transition-all flex items-center justify-center", isSelected && "outline-2 outline-dashed outline-accent rounded-lg")}>
-                                <div className="w-full h-full flex items-center justify-center">
-                                  <Image
-                                    src={iconMap[itemData.type]}
-                                    alt={itemData.name}
-                                    className="object-contain"
-                                    layout="fill"
-                                    unoptimized
-                                  />
-                                </div>
+                                <Image
+                                  src={iconMap[itemData.type]}
+                                  alt={itemData.name}
+                                  className="object-contain"
+                                  layout="fill"
+                                  unoptimized
+                                />
                                 {isSelected && (
                                 <TooltipProvider>
                                     <div 

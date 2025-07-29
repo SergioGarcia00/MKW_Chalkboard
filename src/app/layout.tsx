@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster"
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Track Architect',
+  title: 'MKW Architect',
   description: 'A mapmaker for Mario Kart worlds.',
 };
 
