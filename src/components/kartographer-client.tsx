@@ -314,8 +314,7 @@ export function KartographerClient() {
       <div className="flex h-screen w-full bg-background font-headline text-foreground overflow-hidden">
         <aside className="w-[320px] h-full bg-card border-r border-border flex flex-col p-4 shadow-lg">
           <div className="flex items-center justify-center text-center mb-4 space-x-2">
-            <Image src={iconMap['item-box']} alt="MKW Architect Logo" width={40} height={40} unoptimized />
-            <h1 className="text-3xl font-bold text-primary">MKW Architect</h1>
+            <h1 className="text-3xl font-bold text-primary">Jet Joker</h1>
           </div>
           <p className="text-sm text-muted-foreground text-center mb-4">Build your dream track!</p>
           <Separator />
