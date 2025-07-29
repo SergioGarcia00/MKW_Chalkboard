@@ -20,11 +20,22 @@ import logo from '../components/icons/Logo_ok.png';
 
 
 const defaultLayouts = [
+  { name: "Luigi Circuit", image: "https://placehold.co/1024x768.png", hint: "race track" },
   { name: "Moo Moo Meadows", image: "https://placehold.co/1024x768.png", hint: "grassy field" },
-  { name: "Rainbow Road", image: "https://placehold.co/1024x768.png", hint: "rainbow space" },
-  { name: "Bowser's Castle", image: "https://placehold.co/1024x768.png", hint: "lava castle" },
-  { name: "DK Jungle", image: "https://placehold.co/1024x768.png", hint: "jungle ruins" },
+  { name: "Mushroom Gorge", image: "https://placehold.co/1024x768.png", hint: "mushroom canyon" },
+  { name: "Toad's Factory", image: "https://placehold.co/1024x768.png", hint: "industrial factory" },
   { name: "Mario Circuit", image: "https://placehold.co/1024x768.png", hint: "race track" },
+  { name: "Coconut Mall", image: "https://placehold.co/1024x768.png", hint: "shopping mall" },
+  { name: "DK's Snowboard Cross", image: "https://placehold.co/1024x768.png", hint: "snowy mountain" },
+  { name: "Wario's Gold Mine", image: "https://placehold.co/1024x768.png", hint: "gold mine" },
+  { name: "Daisy Circuit", image: "https://placehold.co/1024x768.png", hint: "seaside town" },
+  { name: "Koopa Cape", image: "https://placehold.co/1024x768.png", hint: "river cape" },
+  { name: "Maple Treeway", image: "https://placehold.co/1024x768.png", hint: "autumn forest" },
+  { name: "Grumble Volcano", image: "https://placehold.co/1024x768.png", hint: "erupting volcano" },
+  { name: "Dry Dry Ruins", image: "https://placehold.co/1024x768.png", hint: "desert ruins" },
+  { name: "Moonview Highway", image: "https://placehold.co/1024x768.png", hint: "night city" },
+  { name: "Bowser's Castle", image: "https://placehold.co/1024x768.png", hint: "lava castle" },
+  { name: "Rainbow Road", image: "https://placehold.co/1024x768.png", hint: "rainbow space" },
 ];
 
 const ITEM_SIZE = 48;
