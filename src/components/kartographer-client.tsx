@@ -55,18 +55,10 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
   const { toast } = useToast();
 
   useEffect(() => {
-    try {
-      const savedCustomLayoutsJSON = localStorage.getItem("kartographer-custom-layouts");
-      if (savedCustomLayoutsJSON) {
-        const customLayouts: Layout[] = JSON.parse(savedCustomLayoutsJSON);
-        // Combine initial layouts with custom layouts, avoiding duplicates
-        const combinedLayouts = new Map<string, Layout>();
-        initialLayouts.forEach(layout => combinedLayouts.set(layout.name, layout));
-        customLayouts.forEach(layout => combinedLayouts.set(layout.name, layout));
-        setLayouts(Array.from(combinedLayouts.values()));
-      }
-    } catch (error) {
-      console.error("Failed to load custom layouts from localStorage", error);
+    // Set initial layouts from props. This will update when the server provides new layouts.
+    setLayouts(initialLayouts);
+    if (!selectedLayout && initialLayouts.length > 0) {
+      setSelectedLayout(initialLayouts[0].image);
     }
     
     try {
@@ -75,14 +67,15 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
         const { items: loadedItems, lines: loadedLines, selectedLayout: loadedLayout } = JSON.parse(savedData);
         setItems(loadedItems || []);
         setLines(loadedLines || []);
-        if(layouts.some(l => l.image === loadedLayout)) {
+        // Check if the saved layout exists in the current layouts
+        if(initialLayouts.some(l => l.image === loadedLayout)) {
             setSelectedLayout(loadedLayout);
         }
       }
     } catch (error) {
       console.error("Failed to load layout from localStorage", error);
     }
-  }, [initialLayouts]);
+  }, [initialLayouts, selectedLayout]);
 
   const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -107,17 +100,8 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
           const newLayout = createUniqueLayout(prevLayouts);
           const newLayoutsList = [...prevLayouts, newLayout];
           
-          try {
-            const currentCustomLayoutsJSON = localStorage.getItem("kartographer-custom-layouts");
-            const currentCustomLayouts = currentCustomLayoutsJSON ? JSON.parse(currentCustomLayoutsJSON) : [];
-            const updatedCustomLayouts = [...currentCustomLayouts, newLayout];
-            localStorage.setItem("kartographer-custom-layouts", JSON.stringify(updatedCustomLayouts));
-          } catch(error) {
-            console.error("Failed to save custom layout to localStorage", error);
-          }
-          
           handleLayoutChange(newLayout.image);
-          toast({ title: "Custom layout loaded and saved!" });
+          toast({ title: "Custom layout loaded!" });
 
           return newLayoutsList;
         });
@@ -535,3 +519,5 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
     </TooltipProvider>
   );
 }
+
+    
