@@ -301,21 +301,6 @@ export function KartographerClient() {
     setLines([]);
     toast({ title: "Canvas Cleared", description: "Ready for a fresh start!" });
   };
-
-  const renderItemIcon = (itemType: ItemType, itemName: string) => {
-    const iconSrc = iconMap[itemType];
-    if (!iconSrc) return null;
-    return (
-      <Image
-        src={iconSrc}
-        alt={itemName}
-        width={32}
-        height={32}
-        className="object-contain"
-        unoptimized
-      />
-    );
-  };
   
   const strokeStyles = [
     { name: 'Solid', value: 'none' },
@@ -415,7 +400,14 @@ export function KartographerClient() {
                         className="p-2 border border-dashed border-border rounded-lg flex flex-col items-center justify-center aspect-square cursor-grab active:cursor-grabbing transition-all hover:bg-primary/10 hover:shadow-md"
                       >
                          <div className="w-8 h-8 flex items-center justify-center">
-                           {renderItemIcon(type, name)}
+                           <Image
+                              src={iconMap[type]}
+                              alt={name}
+                              width={32}
+                              height={32}
+                              className="object-contain"
+                              unoptimized
+                            />
                          </div>
                         <span className="text-xs text-center mt-1">{name}</span>
                       </div>
@@ -479,7 +471,7 @@ export function KartographerClient() {
                     const itemData = AVAILABLE_ITEMS.find(i => i.type === item.type);
                     if (!itemData) return null;
                     const isSelected = selectedItem === item.id;
-                    const scaledItemSize = ITEM_SIZE * item.scale;
+                    const scaledItemSize = ITEM_SIZE;
 
                     return (
                         <div
@@ -488,15 +480,21 @@ export function KartographerClient() {
                             style={{
                                 left: `${item.x}px`,
                                 top: `${item.y}px`,
-                                width: `${scaledItemSize}px`,
-                                height: `${scaledItemSize}px`,
+                                width: `${scaledItemSize * item.scale}px`,
+                                height: `${scaledItemSize * item.scale}px`,
                                 transform: `rotate(${item.rotation}deg)`,
                             }}
                             onMouseDown={(e) => handleItemMouseDown(e, item.id, 'move')}
                         >
                             <div className={cn("w-full h-full relative group transition-all flex items-center justify-center", isSelected && "outline-2 outline-dashed outline-accent rounded-lg")}>
                                 <div className="w-full h-full flex items-center justify-center">
-                                  {renderItemIcon(itemData.type, itemData.name)}
+                                  <Image
+                                    src={iconMap[itemData.type]}
+                                    alt={itemData.name}
+                                    className="object-contain"
+                                    layout="fill"
+                                    unoptimized
+                                  />
                                 </div>
                                 {isSelected && (
                                 <TooltipProvider>
