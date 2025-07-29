@@ -317,8 +317,8 @@ export function KartographerClient() {
           <div className="flex items-center mb-4 space-x-4">
             <Image src={logo} alt="Jet Joker Logo" width={80} height={80} unoptimized />
             <div className="flex flex-col">
-              <h1 className="text-3xl font-bold text-primary">Jet Joker</h1>
-              <p className="text-sm text-muted-foreground">Build your dream track!</p>
+              <h1 className="text-3xl font-bold text-primary">JJ Chalkboard</h1>
+              <p className="text-sm text-muted-foreground">mario kart world track planner</p>
             </div>
           </div>
           <Separator />
