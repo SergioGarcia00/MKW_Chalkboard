@@ -18,33 +18,23 @@ import { Slider } from "./ui/slider";
 import { AVAILABLE_ITEMS, iconMap } from "./icon-map";
 import logo from '../components/icons/Logo_ok.png';
 
+type Layout = {
+  name: string;
+  image: string;
+  hint: string;
+};
 
-const defaultLayouts = [
-  { name: "Luigi Circuit", image: "https://placehold.co/1024x768.png", hint: "race track" },
-  { name: "Moo Moo Meadows", image: "https://placehold.co/1024x768.png", hint: "grassy field" },
-  { name: "Mushroom Gorge", image: "https://placehold.co/1024x768.png", hint: "mushroom canyon" },
-  { name: "Toad's Factory", image: "https://placehold.co/1024x768.png", hint: "industrial factory" },
-  { name: "Mario Circuit", image: "https://placehold.co/1024x768.png", hint: "race track" },
-  { name: "Coconut Mall", image: "https://placehold.co/1024x768.png", hint: "shopping mall" },
-  { name: "DK's Snowboard Cross", image: "https://placehold.co/1024x768.png", hint: "snowy mountain" },
-  { name: "Wario's Gold Mine", image: "https://placehold.co/1024x768.png", hint: "gold mine" },
-  { name: "Daisy Circuit", image: "https://placehold.co/1024x768.png", hint: "seaside town" },
-  { name: "Koopa Cape", image: "https://placehold.co/1024x768.png", hint: "river cape" },
-  { name: "Maple Treeway", image: "https://placehold.co/1024x768.png", hint: "autumn forest" },
-  { name: "Grumble Volcano", image: "https://placehold.co/1024x768.png", hint: "erupting volcano" },
-  { name: "Dry Dry Ruins", image: "https://placehold.co/1024x768.png", hint: "desert ruins" },
-  { name: "Moonview Highway", image: "https://placehold.co/1024x768.png", hint: "night city" },
-  { name: "Bowser's Castle", image: "https://placehold.co/1024x768.png", hint: "lava castle" },
-  { name: "Rainbow Road", image: "https://placehold.co/1024x768.png", hint: "rainbow space" },
-];
+interface KartographerClientProps {
+  initialLayouts: Layout[];
+}
 
 const ITEM_SIZE = 48;
 
-export function KartographerClient() {
+export function KartographerClient({ initialLayouts }: KartographerClientProps) {
   const [items, setItems] = useState<CanvasItem[]>([]);
   const [lines, setLines] = useState<CanvasLine[]>([]);
-  const [layouts, setLayouts] = useState(defaultLayouts);
-  const [selectedLayout, setSelectedLayout] = useState(layouts[0].image);
+  const [layouts, setLayouts] = useState(initialLayouts);
+  const [selectedLayout, setSelectedLayout] = useState(layouts.length > 0 ? layouts[0].image : '');
   const [selectedItem, setSelectedItem] = useState<number | null>(null);
   const [mode, setMode] = useState<'place' | 'draw'>('place');
   const [isDrawing, setIsDrawing] = useState(false);
@@ -68,14 +58,14 @@ export function KartographerClient() {
     try {
       const savedCustomLayoutsJSON = localStorage.getItem("kartographer-custom-layouts");
       if (savedCustomLayoutsJSON) {
-        const customLayouts = JSON.parse(savedCustomLayoutsJSON);
-        const combinedLayouts = new Map();
-        defaultLayouts.forEach(layout => combinedLayouts.set(layout.name, layout));
-        customLayouts.forEach((layout: { name: string, image: string, hint: string }) => combinedLayouts.set(layout.name, layout));
+        const customLayouts: Layout[] = JSON.parse(savedCustomLayoutsJSON);
+        // Combine initial layouts with custom layouts, avoiding duplicates
+        const combinedLayouts = new Map<string, Layout>();
+        initialLayouts.forEach(layout => combinedLayouts.set(layout.name, layout));
+        customLayouts.forEach(layout => combinedLayouts.set(layout.name, layout));
         setLayouts(Array.from(combinedLayouts.values()));
       }
-    } catch (error)
-      {
+    } catch (error) {
       console.error("Failed to load custom layouts from localStorage", error);
     }
     
@@ -92,7 +82,7 @@ export function KartographerClient() {
     } catch (error) {
       console.error("Failed to load layout from localStorage", error);
     }
-  }, []);
+  }, [initialLayouts]);
 
   const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -102,7 +92,7 @@ export function KartographerClient() {
         const imageUrl = event.target?.result as string;
         const layoutNameFromFile = file.name.replace(/.[^/.]+$/, "");
         
-        const createUniqueLayout = (currentLayouts: typeof defaultLayouts) => {
+        const createUniqueLayout = (currentLayouts: Layout[]) => {
           const existingNames = new Set(currentLayouts.map(l => l.name));
           let newLayoutName = layoutNameFromFile;
           let counter = 1;
