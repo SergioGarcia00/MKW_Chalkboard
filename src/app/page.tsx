@@ -4,7 +4,7 @@ import fs from 'fs';
 import path from 'path';
 
 export default function Home() {
-  const mapsDirectory = path.join(process.cwd(), 'public', 'maps');
+  const mapsDirectory = path.join(process.cwd(), 'src', 'components', 'Maps');
   let layoutObjects = [];
 
   try {
@@ -12,10 +12,10 @@ export default function Home() {
     layoutObjects = mapFiles
       .filter(file => /\.(png|jpg|jpeg|webp)$/i.test(file))
       .map(file => {
-        const layoutName = file.replace(/\.[^/.]+$/, "").replace(/_/g, ' ');
+        const layoutName = file.replace(/\.[^/.]+$/, "").replace(/[_-]/g, ' ');
         return {
           name: layoutName.replace(/\b\w/g, l => l.toUpperCase()),
-          image: `/maps/${file}`,
+          image: `/maps/${file}`, // The URL path will be relative to the public directory
           hint: layoutName.toLowerCase(),
         };
       });

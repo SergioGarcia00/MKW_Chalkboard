@@ -34,7 +34,7 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
   const [items, setItems] = useState<CanvasItem[]>([]);
   const [lines, setLines] = useState<CanvasLine[]>([]);
   const [layouts, setLayouts] = useState(initialLayouts);
-  const [selectedLayout, setSelectedLayout] = useState(layouts.length > 0 ? layouts[0].image : '');
+  const [selectedLayout, setSelectedLayout] = useState(initialLayouts.length > 0 ? initialLayouts[0].image : '');
   const [selectedItem, setSelectedItem] = useState<number | null>(null);
   const [mode, setMode] = useState<'place' | 'draw'>('place');
   const [isDrawing, setIsDrawing] = useState(false);
@@ -57,8 +57,8 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
   useEffect(() => {
     // Set initial layouts from props. This will update when the server provides new layouts.
     setLayouts(initialLayouts);
-    if (!selectedLayout && initialLayouts.length > 0) {
-      setSelectedLayout(initialLayouts[0].image);
+    if (!selectedLayout || !initialLayouts.some(l => l.image === selectedLayout)) {
+        setSelectedLayout(initialLayouts.length > 0 ? initialLayouts[0].image : '');
     }
     
     try {
@@ -74,13 +74,6 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
       }
     } catch (error) {
       console.error("Failed to load layout from localStorage", error);
-    }
-  }, [initialLayouts, selectedLayout]);
-  
-   useEffect(() => {
-    setLayouts(initialLayouts);
-    if (!initialLayouts.some(l => l.image === selectedLayout)) {
-      setSelectedLayout(initialLayouts.length > 0 ? initialLayouts[0].image : '');
     }
   }, [initialLayouts]);
 
