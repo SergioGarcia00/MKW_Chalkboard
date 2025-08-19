@@ -170,6 +170,38 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
     }
     e.target.value = "";
   };
+  
+  const handleItemDragStart = (e: DragEvent, itemType: ItemType) => {
+    e.dataTransfer.setData("application/reactflow", itemType);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e: DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+  
+  const handleDrop = (e: DragEvent) => {
+    e.preventDefault();
+    if (!canvasRef.current) return;
+    
+    const itemType = e.dataTransfer.getData("application/reactflow") as ItemType;
+    if (!itemType) return;
+    
+    const canvasRect = canvasRef.current.getBoundingClientRect();
+    const x = e.clientX - canvasRect.left - ITEM_SIZE / 2;
+    const y = e.clientY - canvasRect.top - ITEM_SIZE / 2;
+    
+    const newItem: CanvasItem = {
+      id: Date.now(),
+      type: itemType,
+      x, y,
+      rotation: 0,
+    };
+    
+    setItems((prev) => [...prev, newItem]);
+    setSelectedItem(newItem.id);
+  };
 
   const handleItemTypeSelect = (itemType: ItemType) => {
     setMode('place');
@@ -544,6 +576,8 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
                     <TooltipTrigger asChild>
                       <div
                         onClick={() => handleItemTypeSelect(type)}
+                        onDragStart={(e) => handleItemDragStart(e, type)}
+                        draggable
                         className={cn(
                           "p-2 border border-dashed border-border rounded-lg flex flex-col items-center justify-center aspect-square cursor-pointer transition-all hover:bg-primary/10 hover:shadow-md",
                           selectedItemForPlacement === type && "ring-2 ring-primary bg-primary/20"
@@ -593,6 +627,8 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
                 onMouseDown={handleCanvasMouseDown}
                 onMouseUp={handleCanvasMouseUp}
                 onMouseLeave={handleCanvasMouseUp}
+                onDragOver={handleDragOver}
+                onDrop={handleDrop}
                 className={cn(
                   "w-full h-full rounded-lg shadow-inner relative overflow-hidden border border-border",
                   getCanvasCursor()
