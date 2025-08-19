@@ -13,7 +13,16 @@ export default function Home() {
       layoutObjects = mapFiles
         .filter(file => /\.(png|jpg|jpeg|webp)$/i.test(file))
         .map(file => {
-          const layoutName = file.replace(/\.[^/.]+$/, "").replace(/[_-]/g, ' ');
+          let displayName = file.replace(/\.[^/.]+$/, ""); 
+
+          // Apply specific replacements for user-friendly names
+          displayName = displayName.replace(/^\d+px-/, ''); 
+          displayName = displayName.replace(/[_-]/g, ' '); 
+          displayName = displayName.replace(/MKWorld/g, '');
+          displayName = displayName.replace(/Map/g, ''); 
+          displayName = displayName.replace(/([a-z])([A-Z])/g, '$1 $2'); 
+          displayName = displayName.replace(/\s+/g, ' ').trim(); 
+
           const imagePath = path.join(mapsDirectory, file);
           const imageBuffer = fs.readFileSync(imagePath);
           const imageBase64 = imageBuffer.toString('base64');
@@ -30,9 +39,9 @@ export default function Home() {
           const dataUri = `data:${mimeType};base64,${imageBase64}`;
 
           return {
-            name: layoutName.replace(/\b\w/g, l => l.toUpperCase()),
+            name: displayName.replace(/\b\w/g, l => l.toUpperCase()),
             image: dataUri,
-            hint: layoutName.toLowerCase(),
+            hint: displayName.toLowerCase(),
           };
         });
     }
