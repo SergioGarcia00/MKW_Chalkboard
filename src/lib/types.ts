@@ -1,3 +1,4 @@
+
 export type ItemType =
   | 'item-box'
   | 'banana'
@@ -42,3 +43,17 @@ export interface CanvasLine {
   strokeWidth: number;
   strokeDasharray: string;
 }
+
+export interface CanvasShape {
+    id: number;
+    type: 'rectangle' | 'circle' | 'arrow';
+    startX: number;
+    startY: number;
+    endX: number;
+    endY: number;
+    color: string;
+    strokeWidth: number;
+    strokeDasharray: string;
+}
+
+    
