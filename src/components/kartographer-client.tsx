@@ -11,7 +11,7 @@ import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Download, Save, Trash2, RotateCw, Scaling, Upload, Pen, MousePointer, Eraser, Square, Circle, ArrowRight } from "lucide-react";
+import { Download, Trash2, RotateCw, Scaling, Upload, Pen, MousePointer, Eraser, Square, Circle, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { Slider } from "./ui/slider";
@@ -153,12 +153,13 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
   };
   
   const handleMouseMove = useCallback((e: MouseEvent) => {
-    if (!isDrawing || !canvasRef.current) return;
-    const canvasRect = canvasRef.current.getBoundingClientRect();
-    const x = e.clientX - canvasRect.left;
-    const y = e.clientY - canvasRect.top;
+    if (!isDrawing && !interaction.type) return;
 
-    if (mode === 'draw') {
+    if (isDrawing && canvasRef.current && mode === 'draw') {
+        const canvasRect = canvasRef.current.getBoundingClientRect();
+        const x = e.clientX - canvasRect.left;
+        const y = e.clientY - canvasRect.top;
+
         if (drawMode === 'freehand') {
             setLines(prevLines => {
                 const newLines = [...prevLines];
@@ -174,8 +175,8 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
                 return newShape;
             });
         }
-    } else if (mode === 'place') {
-      if (!interaction.type || !interaction.startEvent || !interaction.initialItem || !canvasRef.current) return;
+    } else if (interaction.type && canvasRef.current && mode === 'place') {
+      if (!interaction.startEvent || !interaction.initialItem) return;
     
       e.preventDefault();
       
@@ -304,6 +305,58 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
   
   const allShapes = [...shapes, ...(drawingShape ? [drawingShape] : [])];
 
+  const renderItemIcon = (type: ItemType, name: string) => {
+    if (type === 'player') {
+      return (
+        <div className="w-8 h-8 flex items-center justify-center bg-blue-500 text-white rounded-full font-bold text-lg">P</div>
+      );
+    }
+    if (type === 'enemy') {
+      return (
+        <div className="w-8 h-8 flex items-center justify-center bg-red-500 text-white rounded-full font-bold text-lg">E</div>
+      );
+    }
+    return (
+      <Image
+        src={iconMap[type]}
+        alt={name}
+        width={32}
+        height={32}
+        className="object-contain"
+        unoptimized
+      />
+    );
+  };
+
+  const renderCanvasItem = (item: CanvasItem) => {
+    if (item.type === 'player') {
+      return (
+        <div className="w-full h-full flex items-center justify-center bg-blue-500 text-white rounded-full font-bold text-2xl" style={{ transform: `scale(${item.scale})` }}>
+          P
+        </div>
+      );
+    }
+    if (item.type === 'enemy') {
+      return (
+        <div className="w-full h-full flex items-center justify-center bg-red-500 text-white rounded-full font-bold text-2xl" style={{ transform: `scale(${item.scale})` }}>
+          E
+        </div>
+      );
+    }
+    const itemData = AVAILABLE_ITEMS.find(i => i.type === item.type);
+    if (!itemData) return null;
+    return (
+      <Image
+        src={iconMap[itemData.type]}
+        alt={itemData.name}
+        className="object-contain"
+        style={{ transform: `scale(${item.scale})` }}
+        layout="fill"
+        unoptimized
+      />
+    );
+  };
+
   return (
     <TooltipProvider>
       <div className="flex h-screen w-full bg-background font-headline text-foreground overflow-hidden">
@@ -427,14 +480,7 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
                         className="p-2 border border-dashed border-border rounded-lg flex flex-col items-center justify-center aspect-square cursor-grab active:cursor-grabbing transition-all hover:bg-primary/10 hover:shadow-md"
                       >
                          <div className="w-8 h-8 flex items-center justify-center">
-                           <Image
-                              src={iconMap[type]}
-                              alt={name}
-                              width={32}
-                              height={32}
-                              className="object-contain"
-                              unoptimized
-                            />
+                           {renderItemIcon(type, name)}
                          </div>
                         <span className="text-xs text-center mt-1">{name}</span>
                       </div>
@@ -519,8 +565,6 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
                 </svg>
 
                 {items.map(item => {
-                    const itemData = AVAILABLE_ITEMS.find(i => i.type === item.type);
-                    if (!itemData) return null;
                     const isSelected = selectedItem === item.id;
                     const scaledItemSize = ITEM_SIZE;
 
@@ -539,14 +583,7 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
                             onMouseDown={(e) => handleItemMouseDown(e, item.id, 'move')}
                         >
                             <div className={cn("w-full h-full relative group transition-all flex items-center justify-center", isSelected && "outline-2 outline-dashed outline-accent rounded-lg")}>
-                                <Image
-                                  src={iconMap[itemData.type]}
-                                  alt={itemData.name}
-                                  className="object-contain"
-                                  style={{ transform: `scale(${item.scale})` }}
-                                  layout="fill"
-                                  unoptimized
-                                />
+                                {renderCanvasItem(item)}
                                 {isSelected && (
                                 <TooltipProvider>
                                     <div 
@@ -578,7 +615,3 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
     </TooltipProvider>
   );
 }
-
-    
-
-    
