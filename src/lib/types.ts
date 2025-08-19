@@ -33,7 +33,6 @@ export interface CanvasItem {
   x: number;
   y: number;
   rotation: number;
-  scale: number;
 }
 
 export interface CanvasLine {

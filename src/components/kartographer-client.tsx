@@ -11,7 +11,7 @@ import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Download, Trash2, RotateCw, Scaling, Upload, Pen, MousePointer, Eraser, Square, Circle, ArrowRight } from "lucide-react";
+import { Download, Trash2, RotateCw, Upload, Pen, MousePointer, Eraser, Square, Circle, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { Slider } from "./ui/slider";
@@ -48,7 +48,7 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
   const [drawingShape, setDrawingShape] = useState<CanvasShape | null>(null);
 
   const [interaction, setInteraction] = useState<{
-    type: 'move' | 'scale' | 'rotate' | null;
+    type: 'move' | 'rotate' | null;
     startEvent: MouseEvent | null;
     initialItem: CanvasItem | null;
   }>({ type: null, startEvent: null, initialItem: null });
@@ -127,7 +127,6 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
       type: itemType,
       x, y,
       rotation: 0,
-      scale: 1,
     };
     setItems((prev) => [...prev, newItem]);
     setSelectedItem(newItem.id);
@@ -139,7 +138,7 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
     }
   };
   
-  const handleItemMouseDown = (e: React.MouseEvent, itemId: number, type: 'move' | 'scale' | 'rotate') => {
+  const handleItemMouseDown = (e: React.MouseEvent, itemId: number, type: 'move' | 'rotate') => {
     if (mode !== 'place') return;
     e.stopPropagation();
     e.preventDefault();
@@ -187,8 +186,8 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
           if (item.id !== initialItem.id) return item;
 
           const updatedItem = { ...item };
-          const itemCenterX = item.x + (ITEM_SIZE * item.scale) / 2;
-          const itemCenterY = item.y + (ITEM_SIZE * item.scale) / 2;
+          const itemCenterX = item.x + (ITEM_SIZE) / 2;
+          const itemCenterY = item.y + (ITEM_SIZE) / 2;
 
           if (type === 'move') {
               updatedItem.x = initialItem.x + (e.pageX - startEvent.pageX);
@@ -196,11 +195,6 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
           } else if (type === 'rotate') {
               const angle = Math.atan2(e.clientY - canvasRect.top - itemCenterY, e.clientX - canvasRect.left - itemCenterX) * (180 / Math.PI) + 90;
               updatedItem.rotation = angle;
-          } else if (type === 'scale') {
-              const initialDist = Math.sqrt(Math.pow(startEvent.clientX - canvasRect.left - itemCenterX, 2) + Math.pow(startEvent.clientY - canvasRect.top - itemCenterY, 2));
-              const currentDist = Math.sqrt(Math.pow(e.clientX - canvasRect.left - itemCenterX, 2) + Math.pow(e.clientY - canvasRect.top - itemCenterY, 2));
-              const scaleFactor = currentDist / initialDist;
-              updatedItem.scale = Math.max(0.2, initialItem.scale * scaleFactor);
           }
           return updatedItem;
       }));
@@ -331,14 +325,14 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
   const renderCanvasItem = (item: CanvasItem) => {
     if (item.type === 'player') {
       return (
-        <div className="w-full h-full flex items-center justify-center bg-blue-500 text-white rounded-full font-bold text-2xl" style={{ transform: `scale(${item.scale})` }}>
+        <div className="w-full h-full flex items-center justify-center bg-blue-500 text-white rounded-full font-bold text-2xl">
           P
         </div>
       );
     }
     if (item.type === 'enemy') {
       return (
-        <div className="w-full h-full flex items-center justify-center bg-red-500 text-white rounded-full font-bold text-2xl" style={{ transform: `scale(${item.scale})` }}>
+        <div className="w-full h-full flex items-center justify-center bg-red-500 text-white rounded-full font-bold text-2xl">
           E
         </div>
       );
@@ -350,7 +344,6 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
         src={iconMap[itemData.type]}
         alt={itemData.name}
         className="object-contain"
-        style={{ transform: `scale(${item.scale})` }}
         layout="fill"
         unoptimized
       />
@@ -589,20 +582,13 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
                                     <div 
                                         className="absolute -top-3 -left-3 w-6 h-6 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center cursor-pointer hover:scale-110 transition-transform"
                                         onMouseDown={(e) => e.stopPropagation()} onClick={(e) => deleteItem(e, item.id)}
-                                        style={{transform: `scale(${1/item.scale})`}}
                                         >
                                         <Trash2 size={14} />
                                     </div>
                                     <div
                                         className="absolute -top-4 left-1/2 -translate-x-1/2 w-6 h-6 bg-secondary text-secondary-foreground rounded-full flex items-center justify-center cursor-alias hover:scale-110 transition-transform"
                                         onMouseDown={(e) => handleItemMouseDown(e, item.id, 'rotate')}
-                                        style={{transform: `scale(${1/item.scale})`}}
                                     ><RotateCw size={14} /></div>
-                                    <div
-                                        className="absolute -bottom-3 -right-3 w-6 h-6 bg-secondary text-secondary-foreground rounded-full flex items-center justify-center cursor-nwse-resize hover:scale-110 transition-transform"
-                                        onMouseDown={(e) => handleItemMouseDown(e, item.id, 'scale')}
-                                        style={{transform: `scale(${1/item.scale})`}}
-                                    ><Scaling size={14} /></div>
                                 </TooltipProvider>
                                 )}
                             </div>
