@@ -104,7 +104,12 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
 
   const handleSaveProject = () => {
     try {
-      const projectData = { items, lines, shapes };
+      const projectData = {
+        layout: selectedLayout,
+        items,
+        lines,
+        shapes
+      };
       const jsonString = JSON.stringify(projectData, null, 2);
       const blob = new Blob([jsonString], { type: "application/json" });
       const url = URL.createObjectURL(blob);
@@ -129,10 +134,27 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
       reader.onload = (event) => {
         try {
           const projectData = JSON.parse(event.target?.result as string);
-          if (projectData.items && projectData.lines && projectData.shapes) {
+          if (projectData.items && projectData.lines && projectData.shapes && projectData.layout) {
+            
+            // Check if the layout from the file exists
+            const layoutExists = layouts.some(l => l.image === projectData.layout);
+            
+            if (!layoutExists) {
+              // It's a custom layout, let's add it to the list
+              const newCustomLayout = {
+                name: "Imported Layout",
+                image: projectData.layout,
+                hint: "imported",
+              };
+              setLayouts(prev => [...prev, newCustomLayout]);
+            }
+
+            // Set the layout and canvas content
+            setSelectedLayout(projectData.layout);
             setItems(projectData.items);
             setLines(projectData.lines);
             setShapes(projectData.shapes);
+
             toast({ title: "Project Loaded!", description: "Your project has been loaded onto the canvas." });
           } else {
             throw new Error("Invalid project file structure.");
@@ -666,5 +688,7 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
     </TooltipProvider>
   );
 }
+
+    
 
     
