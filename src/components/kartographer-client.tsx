@@ -11,7 +11,7 @@ import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Download, Trash2, RotateCw, Upload, Pen, MousePointer, Eraser, Square, Circle, ArrowRight } from "lucide-react";
+import { Download, Trash2, RotateCw, Upload, Pen, MousePointer, Eraser, Square, Circle, ArrowRight, Save } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { Slider } from "./ui/slider";
@@ -60,9 +60,46 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
   useEffect(() => {
     setLayouts(initialLayouts);
     if (!selectedLayout || !initialLayouts.some(l => l.image === selectedLayout)) {
-        setSelectedLayout(initialLayouts.length > 0 ? initialLayouts[0].image : '');
+        const newLayout = initialLayouts.length > 0 ? initialLayouts[0].image : '';
+        setSelectedLayout(newLayout);
+        loadLayout(newLayout);
+    } else {
+      loadLayout(selectedLayout);
     }
   }, [initialLayouts, selectedLayout]);
+
+  const getLayoutKey = (layoutImage: string) => {
+    const layout = layouts.find(l => l.image === layoutImage);
+    return layout ? `kartographer-layout-${layout.name}` : null;
+  }
+  
+  const saveLayout = () => {
+    const key = getLayoutKey(selectedLayout);
+    if (!key) {
+      toast({ variant: "destructive", title: "Cannot Save", description: "Selected layout not found." });
+      return;
+    }
+    const dataToSave = JSON.stringify({ items, lines, shapes });
+    localStorage.setItem(key, dataToSave);
+    toast({ title: "Layout Saved!", description: "Your layout has been saved in this browser." });
+  };
+  
+  const loadLayout = (layoutImage: string) => {
+    const key = getLayoutKey(layoutImage);
+    if (!key) return;
+    const savedData = localStorage.getItem(key);
+    if (savedData) {
+      const { items: savedItems, lines: savedLines, shapes: savedShapes } = JSON.parse(savedData);
+      setItems(savedItems || []);
+      setLines(savedLines || []);
+      setShapes(savedShapes || []);
+      toast({ title: "Layout Loaded", description: "Your saved layout has been loaded." });
+    } else {
+      setItems([]);
+      setLines([]);
+      setShapes([]);
+    }
+  };
 
   const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -279,9 +316,7 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
   
   const handleLayoutChange = (newLayoutImage: string) => {
     setSelectedLayout(newLayoutImage);
-    setItems([]);
-    setLines([]);
-    setShapes([]);
+    loadLayout(newLayoutImage);
   };
 
   const clearCanvas = () => {
@@ -488,6 +523,9 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
           </div>
           <Separator />
           <div className="pt-4 space-y-2">
+            <Button onClick={saveLayout} className="w-full">
+              <Save className="mr-2 h-4 w-4" /> Save Layout
+            </Button>
             <div className="flex gap-2">
                <Button onClick={() => exportAsImage('png')} variant="outline" className="w-full"><Download className="mr-2 h-4 w-4" /> Export PNG</Button>
                <Button onClick={() => exportAsImage('jpeg')} variant="outline" className="w-full"><Download className="mr-2 h-4 w-4" /> Export JPG</Button>

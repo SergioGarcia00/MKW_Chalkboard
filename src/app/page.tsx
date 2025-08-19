@@ -5,7 +5,7 @@ import path from 'path';
 
 export default function Home() {
   const mapsDirectory = path.join(process.cwd(), 'src', 'components', 'Maps');
-  let layoutObjects = [];
+  let layoutObjects: { name: string; image: string; hint: string; }[] = [];
 
   try {
     if (fs.existsSync(mapsDirectory)) {
