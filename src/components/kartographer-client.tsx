@@ -62,22 +62,7 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
     if (!selectedLayout || !initialLayouts.some(l => l.image === selectedLayout)) {
         setSelectedLayout(initialLayouts.length > 0 ? initialLayouts[0].image : '');
     }
-    
-    try {
-      const savedData = localStorage.getItem("kartographer-save");
-      if (savedData) {
-        const { items: loadedItems, lines: loadedLines, shapes: loadedShapes, selectedLayout: loadedLayout } = JSON.parse(savedData);
-        setItems(loadedItems || []);
-        setLines(loadedLines || []);
-        setShapes(loadedShapes || []);
-        if(initialLayouts.some(l => l.image === loadedLayout)) {
-            setSelectedLayout(loadedLayout);
-        }
-      }
-    } catch (error) {
-      console.error("Failed to load layout from localStorage", error);
-    }
-  }, [initialLayouts]);
+  }, [initialLayouts, selectedLayout]);
 
   const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -283,16 +268,6 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
     };
   }, [handleMouseMove, handleMouseUp]);
 
-  const saveLayout = () => {
-    try {
-      const data = JSON.stringify({ items, lines, shapes, selectedLayout });
-      localStorage.setItem("kartographer-save", data);
-      toast({ title: "Layout Saved!", description: "Your masterpiece is safe and sound." });
-    } catch (error) {
-      toast({ variant: "destructive", title: "Uh oh!", description: "Could not save layout." });
-    }
-  };
-
   const exportAsImage = (format: 'png' | 'jpeg') => {
     if (canvasRef.current) {
       setSelectedItem(null);
@@ -475,9 +450,6 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
           <Separator />
           <div className="pt-4 space-y-2">
             <div className="flex gap-2">
-              <Button onClick={saveLayout} className="w-full"><Save className="mr-2 h-4 w-4" /> Save</Button>
-            </div>
-            <div className="flex gap-2">
                <Button onClick={() => exportAsImage('png')} variant="outline" className="w-full"><Download className="mr-2 h-4 w-4" /> Export PNG</Button>
                <Button onClick={() => exportAsImage('jpeg')} variant="outline" className="w-full"><Download className="mr-2 h-4 w-4" /> Export JPG</Button>
             </div>
@@ -606,5 +578,7 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
     </TooltipProvider>
   );
 }
+
+    
 
     
