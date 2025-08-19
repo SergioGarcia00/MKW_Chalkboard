@@ -11,12 +11,15 @@ import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Download, Trash2, RotateCw, Upload, Pen, MousePointer, Eraser, Square, Circle, ArrowRight, Save, FileUp } from "lucide-react";
+import { Download, Trash2, RotateCw, Upload, Pen, MousePointer, Eraser, Square, Circle, ArrowRight, Save, FileUp, Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { Slider } from "./ui/slider";
 import { AVAILABLE_ITEMS, iconMap } from "./icon-map";
 import logo from '../components/icons/Logo_ok.png';
+import { useIsMobile } from "@/hooks/use-mobile";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "./ui/sheet";
+import { ScrollArea, ScrollBar } from "./ui/scroll-area";
 
 
 type Layout = {
@@ -473,148 +476,13 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
     return 'cursor-default';
   };
 
-  return (
-    <TooltipProvider>
-      <div className="flex w-full h-screen bg-background font-headline text-foreground overflow-hidden">
-        <aside className="w-[320px] h-full bg-card border-r border-border flex flex-col p-4 shadow-lg">
-          <div className="flex items-center mb-4 space-x-2">
-            <Image src={logo} alt="MKW Chalkboard Logo" width={55} height={55} unoptimized />
-            <div className="flex flex-col">
-              <h1 className="text-xl font-bold text-primary whitespace-nowrap">MKW Chalkboard</h1>
-              <p className="text-xs text-muted-foreground whitespace-nowrap">mario kart world track planner</p>
-            </div>
-          </div>
-          <Separator />
-          <div className="flex-grow overflow-y-auto py-4 pr-2">
-            <Card className="mb-4 bg-transparent border-border">
-              <CardHeader className="p-4">
-                <CardTitle className="text-lg">Track Layouts</CardTitle>
-              </CardHeader>
-              <CardContent className="p-4 pt-0 space-y-4">
-                <Select value={selectedLayout} onValueChange={handleLayoutChange}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Choose a layout" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {layouts.map(layout => (
-                      <SelectItem key={layout.name} value={layout.image}>{layout.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                 <Input
-                  type="file"
-                  ref={layoutFileInputRef}
-                  className="hidden"
-                  accept="image/png, image/jpeg, image/webp"
-                  onChange={handleLayoutImageUpload}
-                />
-                <Button variant="outline" className="w-full" onClick={() => layoutFileInputRef.current?.click()}>
-                  <Upload className="mr-2 h-4 w-4" />
-                  Import Custom
-                </Button>
-              </CardContent>
-            </Card>
-            <Card className="mb-4 bg-transparent border-border">
-              <CardHeader className="p-4">
-                <CardTitle className="text-lg">Tools</CardTitle>
-              </CardHeader>
-              <CardContent className="p-4 pt-0 space-y-4">
-                 <div className="grid grid-cols-2 gap-2">
-                    <Button variant={mode === 'place' ? 'default' : 'outline'} onClick={() => handleModeChange('place')}>
-                      <MousePointer className="mr-2"/> Place
-                    </Button>
-                    <Button variant={mode === 'draw' ? 'default' : 'outline'} onClick={() => handleModeChange('draw')}>
-                      <Pen className="mr-2"/> Draw
-                    </Button>
-                  </div>
-                  <Button variant="outline" className="w-full" onClick={clearCanvas}>
-                    <Eraser className="mr-2 h-4 w-4" />
-                    Clear Canvas
-                  </Button>
-                   {mode === 'draw' && (
-                    <div className="space-y-4 pt-4 border-t border-border">
-                      <div className="grid grid-cols-4 gap-2">
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <Button variant={drawMode === 'freehand' ? 'secondary' : 'ghost'} size="icon" onClick={() => setDrawMode('freehand')}><Pen/></Button>
-                            </TooltipTrigger>
-                            <TooltipContent><p>Freehand</p></TooltipContent>
-                        </Tooltip>
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <Button variant={drawMode === 'rectangle' ? 'secondary' : 'ghost'} size="icon" onClick={() => setDrawMode('rectangle')}><Square/></Button>
-                            </TooltipTrigger>
-                            <TooltipContent><p>Rectangle</p></TooltipContent>
-                        </Tooltip>
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <Button variant={drawMode === 'circle' ? 'secondary' : 'ghost'} size="icon" onClick={() => setDrawMode('circle')}><Circle/></Button>
-                            </TooltipTrigger>
-                            <TooltipContent><p>Circle</p></TooltipContent>
-                        </Tooltip>
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <Button variant={drawMode === 'arrow' ? 'secondary' : 'ghost'} size="icon" onClick={() => setDrawMode('arrow')}><ArrowRight/></Button>
-                            </TooltipTrigger>
-                            <TooltipContent><p>Arrow</p></TooltipContent>
-                        </Tooltip>
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium">Color</label>
-                        <Input type="color" value={drawColor} onChange={(e) => setDrawColor(e.target.value)} className="p-1 h-10" />
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium">Style</label>
-                        <Select value={strokeDash} onValueChange={setStrokeDash}>
-                          <SelectTrigger><SelectValue/></SelectTrigger>
-                          <SelectContent>
-                            {strokeStyles.map(style => (
-                              <SelectItem key={style.value} value={style.value}>{style.name}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium">Thickness: {strokeWidth}px</label>
-                        <Slider value={[strokeWidth]} onValueChange={([val]) => setStrokeWidth(val)} min={1} max={50} step={1} />
-                      </div>
-                    </div>
-                  )}
-              </CardContent>
-            </Card>
-            <Card className="bg-transparent border-border">
-              <CardHeader className="p-4">
-                <CardTitle className="text-lg">Items</CardTitle>
-              </CardHeader>
-              <CardContent className={cn("p-4 pt-0 grid grid-cols-3 gap-4", mode !== 'place' && "opacity-50 pointer-events-none")}>
-                {AVAILABLE_ITEMS.map(({ type, name }) => (
-                  <Tooltip key={type}>
-                    <TooltipTrigger asChild>
-                      <div
-                        onClick={() => handleItemTypeSelect(type)}
-                        onDragStart={(e) => handleItemDragStart(e, type)}
-                        draggable
-                        className={cn(
-                          "p-2 border border-dashed border-border rounded-lg flex flex-col items-center justify-center aspect-square cursor-pointer transition-all hover:bg-primary/10 hover:shadow-md",
-                          selectedItemForPlacement === type && "ring-2 ring-primary bg-primary/20"
-                        )}
-                      >
-                         <div className="w-8 h-8 flex items-center justify-center">
-                           {renderItemIcon(type, name)}
-                         </div>
-                        <span className="text-xs text-center mt-1">{name}</span>
-                      </div>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Select to place {name}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                ))}
-              </CardContent>
-            </Card>
-          </div>
-          <Separator />
-          <div className="pt-4 space-y-2">
+  const renderProjectManagementPanel = () => (
+    <div className="p-4 space-y-4">
+        <Card className="bg-transparent border-border">
+          <CardHeader className="p-4">
+              <CardTitle className="text-lg">Project</CardTitle>
+          </CardHeader>
+          <CardContent className="p-4 pt-0 space-y-2">
             <Input 
                 type="file"
                 ref={projectFileInputRef}
@@ -630,15 +498,45 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
                   <FileUp className="mr-2 h-4 w-4" /> Load Project
                 </Button>
             </div>
+          </CardContent>
+        </Card>
+        <Card className="bg-transparent border-border">
+          <CardHeader className="p-4">
+              <CardTitle className="text-lg">Layout</CardTitle>
+          </CardHeader>
+          <CardContent className="p-4 pt-0 space-y-2">
+            <Input
+              type="file"
+              ref={layoutFileInputRef}
+              className="hidden"
+              accept="image/png, image/jpeg, image/webp"
+              onChange={handleLayoutImageUpload}
+            />
+            <Button variant="outline" className="w-full" onClick={() => layoutFileInputRef.current?.click()}>
+              <Upload className="mr-2 h-4 w-4" />
+              Import Custom
+            </Button>
+          </CardContent>
+        </Card>
+        <Card className="bg-transparent border-border">
+          <CardHeader className="p-4">
+              <CardTitle className="text-lg">Export</CardTitle>
+          </CardHeader>
+          <CardContent className="p-4 pt-0 space-y-2">
             <div className="flex gap-2">
                <Button onClick={() => exportAsImage('png')} variant="outline" className="w-full"><Download className="mr-2 h-4 w-4" /> Export PNG</Button>
                <Button onClick={() => exportAsImage('jpeg')} variant="outline" className="w-full"><Download className="mr-2 h-4 w-4" /> Export JPG</Button>
             </div>
-          </div>
-        </aside>
+          </CardContent>
+        </Card>
+    </div>
+  );
 
+  return (
+    <TooltipProvider>
+      <div className="flex flex-col w-full h-screen bg-background font-headline text-foreground overflow-hidden">
         <main className="flex-1 flex flex-col h-full w-full">
-          <div className="flex-grow p-4">
+          <div className="flex-grow p-4 pb-40">
             <div
               ref={canvasRef}
               onClick={(e) => handleCanvasPointerDown(e)}
@@ -746,7 +644,125 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
             </div>
           </div>
         </main>
+        <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border shadow-lg p-2 z-20">
+            <div className="flex items-center gap-2 mb-2 px-2">
+                 <Sheet>
+                    <SheetTrigger asChild>
+                      <Button variant="outline" size="icon"><Menu/></Button>
+                    </SheetTrigger>
+                    <SheetContent side="bottom" className="rounded-t-lg">
+                      <SheetHeader>
+                        <SheetTitle>Menu</SheetTitle>
+                      </SheetHeader>
+                      {renderProjectManagementPanel()}
+                    </SheetContent>
+                  </Sheet>
+                  <Select value={selectedLayout} onValueChange={handleLayoutChange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Choose a layout" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {layouts.map(layout => (
+                        <SelectItem key={layout.name} value={layout.image}>{layout.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Button variant={mode === 'place' ? 'default' : 'outline'} onClick={() => handleModeChange('place')} size="sm">
+                    <MousePointer className="mr-2"/> Place
+                  </Button>
+                  <Button variant={mode === 'draw' ? 'default' : 'outline'} onClick={() => handleModeChange('draw')} size="sm">
+                    <Pen className="mr-2"/> Draw
+                  </Button>
+                  <Button variant="outline" size="icon" onClick={clearCanvas}>
+                      <Eraser />
+                  </Button>
+            </div>
+            <Separator/>
+            <div className="pt-2">
+              {mode === 'place' ? (
+                 <ScrollArea className="w-full whitespace-nowrap">
+                    <div className="flex w-max space-x-4 p-2">
+                      {AVAILABLE_ITEMS.map(({ type, name }) => (
+                        <Tooltip key={type}>
+                          <TooltipTrigger asChild>
+                            <div
+                              onClick={() => handleItemTypeSelect(type)}
+                              onDragStart={(e) => handleItemDragStart(e, type)}
+                              draggable
+                              className={cn(
+                                "p-2 w-20 h-20 border border-dashed border-border rounded-lg flex flex-col items-center justify-center aspect-square cursor-pointer transition-all hover:bg-primary/10 hover:shadow-md",
+                                selectedItemForPlacement === type && "ring-2 ring-primary bg-primary/20"
+                              )}
+                            >
+                               <div className="w-8 h-8 flex items-center justify-center">
+                                 {renderItemIcon(type, name)}
+                               </div>
+                              <span className="text-xs text-center mt-1 whitespace-normal">{name}</span>
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Select to place {name}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      ))}
+                    </div>
+                    <ScrollBar orientation="horizontal" />
+                  </ScrollArea>
+              ) : (
+                <ScrollArea className="w-full whitespace-nowrap">
+                  <div className="flex items-center space-x-4 p-2">
+                    <div className="flex flex-col items-center space-y-2 w-24">
+                        <label className="text-sm font-medium">Shape</label>
+                        <div className="grid grid-cols-2 gap-1">
+                          <Tooltip>
+                            <TooltipTrigger asChild><Button variant={drawMode === 'freehand' ? 'secondary' : 'ghost'} size="icon" onClick={() => setDrawMode('freehand')}><Pen size={18}/></Button></TooltipTrigger>
+                            <TooltipContent><p>Freehand</p></TooltipContent>
+                          </Tooltip>
+                          <Tooltip>
+                              <TooltipTrigger asChild><Button variant={drawMode === 'rectangle' ? 'secondary' : 'ghost'} size="icon" onClick={() => setDrawMode('rectangle')}><Square size={18}/></Button></TooltipTrigger>
+                              <TooltipContent><p>Rectangle</p></TooltipContent>
+                          </Tooltip>
+                          <Tooltip>
+                              <TooltipTrigger asChild><Button variant={drawMode === 'circle' ? 'secondary' : 'ghost'} size="icon" onClick={() => setDrawMode('circle')}><Circle size={18}/></Button></TooltipTrigger>
+                              <TooltipContent><p>Circle</p></TooltipContent>
+                          </Tooltip>
+                          <Tooltip>
+                              <TooltipTrigger asChild><Button variant={drawMode === 'arrow' ? 'secondary' : 'ghost'} size="icon" onClick={() => setDrawMode('arrow')}><ArrowRight size={18}/></Button></TooltipTrigger>
+                              <TooltipContent><p>Arrow</p></TooltipContent>
+                          </Tooltip>
+                        </div>
+                    </div>
+                    <Separator orientation="vertical" className="h-20"/>
+                    <div className="flex flex-col space-y-2 w-32">
+                      <label className="text-sm font-medium">Color</label>
+                      <Input type="color" value={drawColor} onChange={(e) => setDrawColor(e.target.value)} className="p-1 h-12" />
+                    </div>
+                    <Separator orientation="vertical" className="h-20"/>
+                    <div className="flex flex-col space-y-2 w-32">
+                      <label className="text-sm font-medium">Style</label>
+                      <Select value={strokeDash} onValueChange={setStrokeDash}>
+                        <SelectTrigger><SelectValue/></SelectTrigger>
+                        <SelectContent>
+                          {strokeStyles.map(style => (
+                            <SelectItem key={style.value} value={style.value}>{style.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <Separator orientation="vertical" className="h-20"/>
+                    <div className="flex flex-col space-y-2 w-48">
+                      <label className="text-sm font-medium">Thickness: {strokeWidth}px</label>
+                      <Slider value={[strokeWidth]} onValueChange={([val]) => setStrokeWidth(val)} min={1} max={50} step={1} />
+                    </div>
+                  </div>
+                   <ScrollBar orientation="horizontal" />
+                </ScrollArea>
+              )}
+            </div>
+        </div>
       </div>
     </TooltipProvider>
   );
 }
+
+    
