@@ -11,7 +11,7 @@ import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Download, Trash2, RotateCw, Upload, Pen, MousePointer, Eraser, Square, Circle, ArrowRight, Save } from "lucide-react";
+import { Download, Trash2, RotateCw, Upload, Pen, MousePointer, Eraser, Square, Circle, ArrowRight, Save, FileUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { Slider } from "./ui/slider";
@@ -54,7 +54,8 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
   }>({ type: null, startEvent: null, initialItem: null });
 
   const canvasRef = useRef<HTMLDivElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const layoutFileInputRef = useRef<HTMLInputElement>(null);
+  const projectFileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -62,46 +63,11 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
     if (!selectedLayout || !initialLayouts.some(l => l.image === selectedLayout)) {
         const newLayout = initialLayouts.length > 0 ? initialLayouts[0].image : '';
         setSelectedLayout(newLayout);
-        loadLayout(newLayout);
-    } else {
-      loadLayout(selectedLayout);
+        clearCanvas();
     }
   }, [initialLayouts, selectedLayout]);
-
-  const getLayoutKey = (layoutImage: string) => {
-    const layout = layouts.find(l => l.image === layoutImage);
-    return layout ? `kartographer-layout-${layout.name}` : null;
-  }
   
-  const saveLayout = () => {
-    const key = getLayoutKey(selectedLayout);
-    if (!key) {
-      toast({ variant: "destructive", title: "Cannot Save", description: "Selected layout not found." });
-      return;
-    }
-    const dataToSave = JSON.stringify({ items, lines, shapes });
-    localStorage.setItem(key, dataToSave);
-    toast({ title: "Layout Saved!", description: "Your layout has been saved in this browser." });
-  };
-  
-  const loadLayout = (layoutImage: string) => {
-    const key = getLayoutKey(layoutImage);
-    if (!key) return;
-    const savedData = localStorage.getItem(key);
-    if (savedData) {
-      const { items: savedItems, lines: savedLines, shapes: savedShapes } = JSON.parse(savedData);
-      setItems(savedItems || []);
-      setLines(savedLines || []);
-      setShapes(savedShapes || []);
-      toast({ title: "Layout Loaded", description: "Your saved layout has been loaded." });
-    } else {
-      setItems([]);
-      setLines([]);
-      setShapes([]);
-    }
-  };
-
-  const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleLayoutImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && file.type.startsWith("image/")) {
       const reader = new FileReader();
@@ -135,6 +101,55 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
       toast({ variant: "destructive", title: "Invalid File", description: "Please select an image file." });
     }
   };
+
+  const handleSaveProject = () => {
+    try {
+      const projectData = { items, lines, shapes };
+      const jsonString = JSON.stringify(projectData, null, 2);
+      const blob = new Blob([jsonString], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "kartographer-project.json";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toast({ title: "Project Saved!", description: "Your project has been downloaded." });
+    } catch (error) {
+      console.error("Failed to save project:", error);
+      toast({ variant: "destructive", title: "Save Failed", description: "Could not save the project file." });
+    }
+  };
+
+  const handleLoadProject = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && file.type === "application/json") {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const projectData = JSON.parse(event.target?.result as string);
+          if (projectData.items && projectData.lines && projectData.shapes) {
+            setItems(projectData.items);
+            setLines(projectData.lines);
+            setShapes(projectData.shapes);
+            toast({ title: "Project Loaded!", description: "Your project has been loaded onto the canvas." });
+          } else {
+            throw new Error("Invalid project file structure.");
+          }
+        } catch (error) {
+          console.error("Failed to load project:", error);
+          toast({ variant: "destructive", title: "Load Failed", description: "The selected file is not a valid project file." });
+        }
+      };
+      reader.readAsText(file);
+    } else {
+      toast({ variant: "destructive", title: "Invalid File", description: "Please select a valid .json project file." });
+    }
+    // Reset file input to allow loading the same file again
+    e.target.value = "";
+  };
+
 
   const handleDragStart = (e: DragEvent, itemType: ItemType) => {
     if (mode !== 'place') return;
@@ -316,7 +331,7 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
   
   const handleLayoutChange = (newLayoutImage: string) => {
     setSelectedLayout(newLayoutImage);
-    loadLayout(newLayoutImage);
+    clearCanvas();
   };
 
   const clearCanvas = () => {
@@ -415,12 +430,12 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
                 </Select>
                  <Input
                   type="file"
-                  ref={fileInputRef}
+                  ref={layoutFileInputRef}
                   className="hidden"
                   accept="image/png, image/jpeg, image/webp"
-                  onChange={handleImageUpload}
+                  onChange={handleLayoutImageUpload}
                 />
-                <Button variant="outline" className="w-full" onClick={() => fileInputRef.current?.click()}>
+                <Button variant="outline" className="w-full" onClick={() => layoutFileInputRef.current?.click()}>
                   <Upload className="mr-2 h-4 w-4" />
                   Import Custom
                 </Button>
@@ -523,9 +538,21 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
           </div>
           <Separator />
           <div className="pt-4 space-y-2">
-            <Button onClick={saveLayout} className="w-full">
-              <Save className="mr-2 h-4 w-4" /> Save Layout
-            </Button>
+            <Input 
+                type="file"
+                ref={projectFileInputRef}
+                className="hidden"
+                accept=".json"
+                onChange={handleLoadProject}
+            />
+            <div className="flex gap-2">
+                <Button onClick={handleSaveProject} className="w-full">
+                  <Save className="mr-2 h-4 w-4" /> Save Project
+                </Button>
+                <Button onClick={() => projectFileInputRef.current?.click()} variant="outline" className="w-full">
+                  <FileUp className="mr-2 h-4 w-4" /> Load Project
+                </Button>
+            </div>
             <div className="flex gap-2">
                <Button onClick={() => exportAsImage('png')} variant="outline" className="w-full"><Download className="mr-2 h-4 w-4" /> Export PNG</Button>
                <Button onClick={() => exportAsImage('jpeg')} variant="outline" className="w-full"><Download className="mr-2 h-4 w-4" /> Export JPG</Button>
@@ -639,3 +666,5 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
     </TooltipProvider>
   );
 }
+
+    
