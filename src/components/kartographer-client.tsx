@@ -17,7 +17,6 @@ import Image from "next/image";
 import { Slider } from "./ui/slider";
 import { AVAILABLE_ITEMS, iconMap } from "./icon-map";
 import logo from '../components/icons/Logo_ok.png';
-import { useIsMobile } from "@/hooks/use-mobile";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "./ui/sheet";
 import { ScrollArea, ScrollBar } from "./ui/scroll-area";
 
@@ -348,7 +347,7 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
   }, [interaction, mode, isDrawing, drawMode, drawingShape]);
   
   const handlePointerUp = useCallback(() => {
-    if (mode === 'draw') {
+    if (mode === 'draw' && isDrawing) {
         setIsDrawing(false);
         if (drawingShape) {
             setShapes(prev => [...prev, drawingShape]);
@@ -358,7 +357,7 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
     if (mode === 'place') {
       setInteraction({ type: null, startEvent: null, initialItem: null });
     }
-  }, [mode, drawingShape]);
+  }, [mode, isDrawing, drawingShape]);
   
   const handleModeChange = (newMode: InteractionMode) => {
     setMode(newMode);
@@ -492,10 +491,10 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
             />
             <div className="flex gap-2">
                 <Button onClick={handleSaveProject} className="w-full">
-                  <Save className="mr-2 h-4 w-4" /> Save Project
+                  <Save className="mr-2 h-4 w-4" /> Save
                 </Button>
                 <Button onClick={() => projectFileInputRef.current?.click()} variant="outline" className="w-full">
-                  <FileUp className="mr-2 h-4 w-4" /> Load Project
+                  <FileUp className="mr-2 h-4 w-4" /> Load
                 </Button>
             </div>
           </CardContent>
@@ -524,8 +523,8 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
           </CardHeader>
           <CardContent className="p-4 pt-0 space-y-2">
             <div className="flex gap-2">
-               <Button onClick={() => exportAsImage('png')} variant="outline" className="w-full"><Download className="mr-2 h-4 w-4" /> Export PNG</Button>
-               <Button onClick={() => exportAsImage('jpeg')} variant="outline" className="w-full"><Download className="mr-2 h-4 w-4" /> Export JPG</Button>
+               <Button onClick={() => exportAsImage('png')} variant="outline" className="w-full"><Download className="mr-2 h-4 w-4" /> PNG</Button>
+               <Button onClick={() => exportAsImage('jpeg')} variant="outline" className="w-full"><Download className="mr-2 h-4 w-4" /> JPG</Button>
             </div>
           </CardContent>
         </Card>
@@ -764,5 +763,3 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
     </TooltipProvider>
   );
 }
-
-    
