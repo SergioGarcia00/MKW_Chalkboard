@@ -16,7 +16,6 @@ import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { Slider } from "./ui/slider";
 import { AVAILABLE_ITEMS, iconMap } from "./icon-map";
-import logo from '../components/icons/Logo_ok.png';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "./ui/sheet";
 import { ScrollArea, ScrollBar } from "./ui/scroll-area";
 
@@ -212,7 +211,7 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
     setSelectedItemForPlacement(prev => prev === itemType ? null : itemType);
   };
 
-  const getEventPosition = (e: React.MouseEvent | React.TouchEvent) => {
+  const getEventPosition = (e: React.MouseEvent | React.TouchEvent | MouseEvent | TouchEvent) => {
     if ('touches' in e) {
         return { clientX: e.touches[0].clientX, clientY: e.touches[0].clientY };
     }
@@ -220,6 +219,8 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
   };
 
   const handleCanvasPointerDown = (e: React.MouseEvent | React.TouchEvent) => {
+    const target = e.target as HTMLElement;
+
     if (mode === 'place' && selectedItemForPlacement && canvasRef.current) {
       const { clientX, clientY } = getEventPosition(e);
       const canvasRect = canvasRef.current.getBoundingClientRect();
@@ -234,12 +235,12 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
       };
       setItems((prev) => [...prev, newItem]);
       setSelectedItem(newItem.id);
-    } else if (e.target === canvasRef.current || (e.target as HTMLElement).tagName === 'svg' || (e.target as HTMLElement).tagName === 'path') {
+    } else if (target.closest('.canvas-container') && !target.closest('.item-wrapper')) {
       setSelectedItem(null);
       setSelectedItemForPlacement(null);
     }
     
-    if (mode === 'draw' && canvasRef.current && e.target === canvasRef.current) {
+    if (mode === 'draw' && canvasRef.current && target.closest('.canvas-container')) {
         setIsDrawing(true);
         setSelectedItem(null);
 
@@ -305,7 +306,9 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
         if (drawMode === 'freehand') {
             setLines(prevLines => {
                 const newLines = [...prevLines];
-                newLines[newLines.length - 1].points.push({ x, y });
+                if (newLines.length > 0) {
+                  newLines[newLines.length - 1].points.push({ x, y });
+                }
                 return newLines;
             });
         } else if (drawingShape) {
@@ -347,9 +350,9 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
   }, [interaction, mode, isDrawing, drawMode, drawingShape]);
   
   const handlePointerUp = useCallback(() => {
-    if (mode === 'draw' && isDrawing) {
+    if (isDrawing) {
         setIsDrawing(false);
-        if (drawingShape) {
+        if (mode === 'draw' && drawingShape) {
             setShapes(prev => [...prev, drawingShape]);
             setDrawingShape(null);
         }
@@ -535,16 +538,15 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
     <TooltipProvider>
       <div className="flex flex-col w-full h-screen bg-background font-headline text-foreground overflow-hidden">
         <main className="flex-1 flex flex-col h-full w-full">
-          <div className="flex-grow p-4 pb-40">
+          <div 
+            className="flex-grow p-4 pb-40 canvas-container"
+            onMouseDown={(e) => handleCanvasPointerDown(e)}
+            onTouchStart={(e) => handleCanvasPointerDown(e)}
+            onDragOver={handleDragOver}
+            onDrop={handleDrop}
+           >
             <div
               ref={canvasRef}
-              onClick={(e) => handleCanvasPointerDown(e)}
-              onMouseDown={(e) => handleCanvasPointerDown(e)}
-              onTouchStart={(e) => handleCanvasPointerDown(e)}
-              onMouseUp={handlePointerUp}
-              onTouchEnd={handlePointerUp}
-              onDragOver={handleDragOver}
-              onDrop={handleDrop}
               className={cn(
                 "w-full h-full rounded-lg shadow-inner relative overflow-hidden border border-border",
                 getCanvasCursor()
@@ -606,7 +608,7 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
                   return (
                       <div
                           key={item.id}
-                          className={cn("absolute cursor-grab active:cursor-grabbing flex items-center justify-center", isSelected && "z-10")}
+                          className={cn("absolute cursor-grab active:cursor-grabbing flex items-center justify-center item-wrapper", isSelected && "z-10")}
                           style={{
                               left: `${item.x}px`,
                               top: `${item.y}px`,
