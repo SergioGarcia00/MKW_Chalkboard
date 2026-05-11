@@ -82,4 +82,5 @@ export const iconMap: Record<ItemType, StaticImageData> = {
     // a few fallbacks just in case
     'banana': itemBox,
     'coin-shell': itemBox,
+    'custom-icon': itemBox,
 };

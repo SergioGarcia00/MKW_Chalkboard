@@ -3,8 +3,13 @@ import { Toaster } from "@/components/ui/toaster"
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'MKW Chalkboard',
+  title: 'Kartographer',
   description: 'A mapmaker for Mario Kart worlds.',
+  icons: {
+    icon: '/icon.png',
+    shortcut: '/icon.png',
+    apple: '/icon.png',
+  },
 };
 
 export default function RootLayout({

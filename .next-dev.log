@@ -11,9 +11,9 @@ Creating turbopack project {
   dir: 'C:\\Users\\sgbsa\\Desktop\\Kartographer mario kart world',
   testMode: true
 }
- ✓ Ready in 1109ms
+ ✓ Ready in 1217ms
  ○ Compiling / ...
- ✓ Compiled / in 2.4s
- GET / 200 in 3215ms
- GET / 200 in 382ms
- GET / 200 in 222ms
+ ✓ Compiled / in 2.5s
+ GET / 200 in 3208ms
+ GET / 200 in 440ms
+ GET / 
