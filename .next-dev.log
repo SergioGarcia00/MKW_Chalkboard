@@ -16,4 +16,5 @@ Creating turbopack project {
  ✓ Compiled / in 2.5s
  GET / 200 in 3208ms
  GET / 200 in 440ms
- GET / 
+ GET / 200 in 695ms
+ ✓ Compiled in 232ms
