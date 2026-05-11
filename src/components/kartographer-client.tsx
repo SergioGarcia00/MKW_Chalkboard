@@ -4,14 +4,14 @@
 import React, { useState, useRef, useEffect, useCallback, DragEvent, ChangeEvent } from "react";
 import html2canvas from "html2canvas";
 import { useToast } from "@/hooks/use-toast";
-import type { CanvasItem, ItemType, CanvasLine, CanvasShape } from "@/lib/types";
+import type { CanvasItem, ItemType, CanvasLine, CanvasShape, CanvasText } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Download, Trash2, RotateCw, Upload, Pen, MousePointer, Eraser, Square, Circle, ArrowRight, Save, FileUp, Menu } from "lucide-react";
+import { Download, Trash2, RotateCw, Upload, Pen, MousePointer, Eraser, Square, Circle, ArrowRight, Save, FileUp, Menu, Type, Copy, Undo2, RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { Slider } from "./ui/slider";
@@ -31,15 +31,17 @@ interface KartographerClientProps {
 
 const ITEM_SIZE = 48;
 type DrawMode = 'freehand' | 'rectangle' | 'circle' | 'arrow';
-type InteractionMode = 'place' | 'draw';
+type InteractionMode = 'place' | 'draw' | 'text';
 
 export function KartographerClient({ initialLayouts }: KartographerClientProps) {
   const [items, setItems] = useState<CanvasItem[]>([]);
   const [lines, setLines] = useState<CanvasLine[]>([]);
   const [shapes, setShapes] = useState<CanvasShape[]>([]);
+  const [texts, setTexts] = useState<CanvasText[]>([]);
   const [layouts, setLayouts] = useState(initialLayouts);
   const [selectedLayout, setSelectedLayout] = useState(initialLayouts.length > 0 ? initialLayouts[0].image : '');
   const [selectedItem, setSelectedItem] = useState<number | null>(null);
+  const [selectedText, setSelectedText] = useState<number | null>(null);
   const [selectedItemForPlacement, setSelectedItemForPlacement] = useState<ItemType | null>(null);
   
   const [mode, setMode] = useState<InteractionMode>('place');
@@ -50,12 +52,17 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
   const [strokeWidth, setStrokeWidth] = useState(5);
   const [strokeDash, setStrokeDash] = useState("none");
   const [drawingShape, setDrawingShape] = useState<CanvasShape | null>(null);
+  const [textDraft, setTextDraft] = useState("Callout");
+  const [textColor, setTextColor] = useState("#111827");
+  const [textSize, setTextSize] = useState(28);
 
   const [interaction, setInteraction] = useState<{
-    type: 'move' | 'rotate' | null;
-    startEvent: MouseEvent | TouchEvent | null;
+    type: 'move-item' | 'rotate-item' | 'move-text' | null;
+    startClientX: number;
+    startClientY: number;
     initialItem: CanvasItem | null;
-  }>({ type: null, startEvent: null, initialItem: null });
+    initialText: CanvasText | null;
+  }>({ type: null, startClientX: 0, startClientY: 0, initialItem: null, initialText: null });
 
   const canvasRef = useRef<HTMLDivElement>(null);
   const layoutFileInputRef = useRef<HTMLInputElement>(null);
@@ -86,7 +93,7 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
   };
 
   const handleSaveProject = () => {
-    const projectData = { layout: selectedLayout, items, lines, shapes };
+    const projectData = { layout: selectedLayout, items, lines, shapes, texts };
     const blob = new Blob([JSON.stringify(projectData, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -105,9 +112,12 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
         try {
           const projectData = JSON.parse(event.target?.result as string);
           if (projectData.layout) setSelectedLayout(projectData.layout);
-          if (projectData.items) setItems(projectData.items);
-          if (projectData.lines) setLines(projectData.lines);
-          if (projectData.shapes) setShapes(projectData.shapes);
+          setItems(projectData.items ? projectData.items.map((item: CanvasItem) => ({ ...item, scale: item.scale ?? 1 })) : []);
+          setLines(projectData.lines ?? []);
+          setShapes(projectData.shapes ?? []);
+          setTexts(projectData.texts ?? []);
+          setSelectedItem(null);
+          setSelectedText(null);
           toast({ title: "Project Loaded!" });
         } catch (error) {
           toast({ variant: "destructive", title: "Load Failed" });
@@ -129,9 +139,10 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
     const canvasRect = canvasRef.current.getBoundingClientRect();
     const x = e.clientX - canvasRect.left - ITEM_SIZE / 2;
     const y = e.clientY - canvasRect.top - ITEM_SIZE / 2;
-    const newItem: CanvasItem = { id: Date.now(), type: itemType, x, y, rotation: 0 };
+    const newItem: CanvasItem = { id: Date.now(), type: itemType, x, y, rotation: 0, scale: 1 };
     setItems((prev) => [...prev, newItem]);
     setSelectedItem(newItem.id);
+    setSelectedText(null);
   };
 
   const getEventPosition = (e: React.MouseEvent | React.TouchEvent | MouseEvent | TouchEvent) => {
@@ -149,10 +160,13 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
     const y = clientY - canvasRect.top;
 
     if (mode === 'place' && selectedItemForPlacement) {
-      const newItem: CanvasItem = { id: Date.now(), type: selectedItemForPlacement, x: x - ITEM_SIZE / 2, y: y - ITEM_SIZE / 2, rotation: 0 };
+      const newItem: CanvasItem = { id: Date.now(), type: selectedItemForPlacement, x: x - ITEM_SIZE / 2, y: y - ITEM_SIZE / 2, rotation: 0, scale: 1 };
       setItems((prev) => [...prev, newItem]);
       setSelectedItem(newItem.id);
+      setSelectedText(null);
     } else if (mode === 'draw') {
+        setSelectedItem(null);
+        setSelectedText(null);
         setIsDrawing(true);
         if (drawMode === 'freehand') {
             const newLine: CanvasLine = { id: Date.now(), points: [{ x, y }], color: drawColor, strokeWidth, strokeDasharray: strokeDash === 'dashed' ? '10,10' : strokeDash === 'dotted' ? '2,8' : 'none' };
@@ -160,8 +174,22 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
         } else {
             setDrawingShape({ id: Date.now(), type: drawMode, startX: x, startY: y, endX: x, endY: y, color: drawColor, strokeWidth, strokeDasharray: strokeDash === 'dashed' ? '10,10' : strokeDash === 'dotted' ? '2,8' : 'none' });
         }
+    } else if (mode === 'text' && textDraft.trim()) {
+      const newText: CanvasText = {
+        id: Date.now(),
+        text: textDraft.trim(),
+        x,
+        y,
+        color: textColor,
+        fontSize: textSize,
+        rotation: 0,
+      };
+      setTexts(prev => [...prev, newText]);
+      setSelectedText(newText.id);
+      setSelectedItem(null);
     } else if (!target.closest('.item-wrapper')) {
       setSelectedItem(null);
+      setSelectedText(null);
     }
   };
   
@@ -186,13 +214,18 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
     } else if (interaction.type && interaction.initialItem) {
       setItems(prev => prev.map(item => {
           if (item.id !== interaction.initialItem!.id) return item;
-          if (interaction.type === 'move') {
-              const { clientX: startX, clientY: startY } = getEventPosition(interaction.startEvent!);
-              return { ...item, x: interaction.initialItem!.x + (clientX - startX), y: interaction.initialItem!.y + (clientY - startY) };
+          if (interaction.type === 'move-item') {
+              return { ...item, x: interaction.initialItem!.x + (clientX - interaction.startClientX), y: interaction.initialItem!.y + (clientY - interaction.startClientY) };
           } else {
-              const angle = Math.atan2(y - (item.y + ITEM_SIZE / 2), x - (item.x + ITEM_SIZE / 2)) * (180 / Math.PI) + 90;
+              const scale = item.scale ?? 1;
+              const angle = Math.atan2(y - (item.y + (ITEM_SIZE * scale) / 2), x - (item.x + (ITEM_SIZE * scale) / 2)) * (180 / Math.PI) + 90;
               return { ...item, rotation: angle };
           }
+      }));
+    } else if (interaction.type === 'move-text' && interaction.initialText) {
+      setTexts(prev => prev.map(text => {
+        if (text.id !== interaction.initialText!.id) return text;
+        return { ...text, x: interaction.initialText!.x + (clientX - interaction.startClientX), y: interaction.initialText!.y + (clientY - interaction.startClientY) };
       }));
     }
   }, [isDrawing, interaction, mode, drawMode, drawingShape, strokeWidth, drawColor, strokeDash]);
@@ -203,7 +236,7 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
         setDrawingShape(null);
     }
     setIsDrawing(false);
-    setInteraction({ type: null, startEvent: null, initialItem: null });
+    setInteraction({ type: null, startClientX: 0, startClientY: 0, initialItem: null, initialText: null });
   }, [isDrawing, drawingShape]);
 
   useEffect(() => {
@@ -222,6 +255,7 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
   const exportAsImage = (format: 'png' | 'jpeg') => {
     if (canvasRef.current) {
       setSelectedItem(null);
+      setSelectedText(null);
       setTimeout(() => {
         html2canvas(canvasRef.current!, { useCORS: true }).then(canvas => {
           const link = document.createElement("a");
@@ -230,6 +264,75 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
           link.click();
         });
       }, 100);
+    }
+  };
+
+  const selectedItemData = items.find(item => item.id === selectedItem) ?? null;
+  const selectedTextData = texts.find(text => text.id === selectedText) ?? null;
+
+  const updateSelectedItemScale = (scale: number) => {
+    if (!selectedItem) return;
+    setItems(prev => prev.map(item => item.id === selectedItem ? { ...item, scale } : item));
+  };
+
+  const updateSelectedTextSize = (fontSize: number) => {
+    if (!selectedText) return;
+    setTexts(prev => prev.map(text => text.id === selectedText ? { ...text, fontSize } : text));
+  };
+
+  const deleteSelection = () => {
+    if (selectedItem) {
+      setItems(prev => prev.filter(item => item.id !== selectedItem));
+      setSelectedItem(null);
+      return;
+    }
+    if (selectedText) {
+      setTexts(prev => prev.filter(text => text.id !== selectedText));
+      setSelectedText(null);
+    }
+  };
+
+  const duplicateSelection = () => {
+    if (selectedItemData) {
+      const copy = { ...selectedItemData, id: Date.now(), x: selectedItemData.x + 18, y: selectedItemData.y + 18 };
+      setItems(prev => [...prev, copy]);
+      setSelectedItem(copy.id);
+      return;
+    }
+    if (selectedTextData) {
+      const copy = { ...selectedTextData, id: Date.now(), x: selectedTextData.x + 18, y: selectedTextData.y + 18 };
+      setTexts(prev => [...prev, copy]);
+      setSelectedText(copy.id);
+    }
+  };
+
+  const resetSelectionTransform = () => {
+    if (selectedItem) {
+      setItems(prev => prev.map(item => item.id === selectedItem ? { ...item, rotation: 0, scale: 1 } : item));
+      return;
+    }
+    if (selectedText) {
+      setTexts(prev => prev.map(text => text.id === selectedText ? { ...text, rotation: 0, fontSize: textSize } : text));
+    }
+  };
+
+  const undoLast = () => {
+    if (texts.length > 0) {
+      setTexts(prev => prev.slice(0, -1));
+      setSelectedText(null);
+      return;
+    }
+    if (items.length > 0) {
+      setItems(prev => prev.slice(0, -1));
+      setSelectedItem(null);
+      return;
+    }
+    if (shapes.length > 0) {
+      setShapes(prev => prev.slice(0, -1));
+      return;
+    }
+    if (lines.length > 0) {
+      setLines(prev => prev.slice(0, -1));
     }
   };
 
@@ -244,7 +347,13 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
             onDragOver={(e) => e.preventDefault()}
             onDrop={handleDrop}
             className="w-full h-full rounded-lg shadow-inner relative overflow-hidden border border-border"
-            style={{ backgroundImage: `url(${selectedLayout})`, backgroundSize: "contain", backgroundPosition: "center", backgroundRepeat: "no-repeat" }}
+            style={{
+              backgroundImage: `url(${selectedLayout})`,
+              backgroundSize: "contain",
+              backgroundPosition: "center",
+              backgroundRepeat: "no-repeat",
+              imageRendering: "pixelated",
+            }}
           >
             <svg className="absolute inset-0 w-full h-full pointer-events-none">
               {lines.map(line => (
@@ -263,17 +372,81 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
                 return null;
               })}
             </svg>
-            {items.map(item => (
-              <div key={item.id} className="absolute flex items-center justify-center item-wrapper" style={{ left: item.x, top: item.y, width: ITEM_SIZE, height: ITEM_SIZE, transform: `rotate(${item.rotation}deg)` }} onMouseDown={(e) => { e.stopPropagation(); setInteraction({ type: 'move', startEvent: e.nativeEvent, initialItem: item }); setSelectedItem(item.id); }}>
+            {items.map(item => {
+              const itemScale = item.scale ?? 1;
+              const renderedItemSize = ITEM_SIZE * itemScale;
+              return (
+              <div
+                key={item.id}
+                className="absolute flex items-center justify-center item-wrapper select-none"
+                draggable={false}
+                onDragStart={(e) => e.preventDefault()}
+                style={{ left: item.x, top: item.y, width: renderedItemSize, height: renderedItemSize, transform: `rotate(${item.rotation}deg)` }}
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setInteraction({ type: 'move-item', startClientX: e.clientX, startClientY: e.clientY, initialItem: item, initialText: null });
+                  setSelectedItem(item.id);
+                  setSelectedText(null);
+                }}
+                onTouchStart={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  const touch = e.touches[0];
+                  if (!touch) return;
+                  setInteraction({ type: 'move-item', startClientX: touch.clientX, startClientY: touch.clientY, initialItem: item, initialText: null });
+                  setSelectedItem(item.id);
+                  setSelectedText(null);
+                }}
+              >
                 <div className={cn("w-full h-full relative flex items-center justify-center", selectedItem === item.id && "ring-2 ring-primary ring-offset-2 rounded-lg")}>
-                  {item.type === 'player' ? <div className="w-full h-full bg-blue-500 text-white rounded-full flex items-center justify-center font-bold">P</div> : item.type === 'enemy' ? <div className="w-full h-full bg-red-500 text-white rounded-full flex items-center justify-center font-bold">E</div> : <Image src={iconMap[item.type]} alt={item.type} fill className="object-contain" unoptimized />}
+                  {item.type === 'player' ? <div className="w-full h-full bg-blue-500 text-white rounded-full flex items-center justify-center font-bold">P</div> : item.type === 'enemy' ? <div className="w-full h-full bg-red-500 text-white rounded-full flex items-center justify-center font-bold">E</div> : <Image src={iconMap[item.type]} alt={item.type} fill className="object-contain pointer-events-none" draggable={false} unoptimized />}
                   {selectedItem === item.id && (
                     <>
-                      <button className="absolute -top-4 -left-4 w-6 h-6 bg-destructive text-white rounded-full flex items-center justify-center" onClick={(e) => { e.stopPropagation(); setItems(prev => prev.filter(i => i.id !== item.id)); setSelectedItem(null); }}><Trash2 size={12}/></button>
-                      <button className="absolute -top-4 -right-4 w-6 h-6 bg-primary text-white rounded-full flex items-center justify-center" onMouseDown={(e) => { e.stopPropagation(); setInteraction({ type: 'rotate', startEvent: e.nativeEvent, initialItem: item }); }}><RotateCw size={12}/></button>
+                      <button className="absolute -top-4 -left-4 w-6 h-6 bg-destructive text-white rounded-full flex items-center justify-center" onClick={(e) => { e.stopPropagation(); deleteSelection(); }}><Trash2 size={12}/></button>
+                      <button
+                        className="absolute -top-4 -right-4 w-6 h-6 bg-primary text-white rounded-full flex items-center justify-center"
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setInteraction({ type: 'rotate-item', startClientX: e.clientX, startClientY: e.clientY, initialItem: item, initialText: null });
+                        }}
+                        onTouchStart={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          const touch = e.touches[0];
+                          if (!touch) return;
+                          setInteraction({ type: 'rotate-item', startClientX: touch.clientX, startClientY: touch.clientY, initialItem: item, initialText: null });
+                        }}
+                      ><RotateCw size={12}/></button>
                     </>
                   )}
                 </div>
+              </div>
+            )})}
+            {texts.map(text => (
+              <div
+                key={text.id}
+                className={cn("absolute text-wrapper select-none whitespace-pre rounded px-1 leading-none", selectedText === text.id && "ring-2 ring-primary ring-offset-2")}
+                style={{ left: text.x, top: text.y, color: text.color, fontSize: text.fontSize, transform: `rotate(${text.rotation}deg)`, textShadow: "0 1px 2px rgba(255,255,255,0.85)" }}
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setInteraction({ type: 'move-text', startClientX: e.clientX, startClientY: e.clientY, initialItem: null, initialText: text });
+                  setSelectedText(text.id);
+                  setSelectedItem(null);
+                }}
+                onTouchStart={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  const touch = e.touches[0];
+                  if (!touch) return;
+                  setInteraction({ type: 'move-text', startClientX: touch.clientX, startClientY: touch.clientY, initialItem: null, initialText: text });
+                  setSelectedText(text.id);
+                  setSelectedItem(null);
+                }}
+              >
+                {text.text}
               </div>
             ))}
           </div>
@@ -302,16 +475,32 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
             </Select>
             <Button variant={mode === 'place' ? 'default' : 'outline'} onClick={() => { setMode('place'); setSelectedItemForPlacement(null); }}><MousePointer className="mr-2 h-4 w-4"/> Place</Button>
             <Button variant={mode === 'draw' ? 'default' : 'outline'} onClick={() => setMode('draw')}><Pen className="mr-2 h-4 w-4"/> Draw</Button>
-            <Button variant="outline" size="icon" onClick={() => { setLines([]); setShapes([]); setItems([]); }}><Eraser/></Button>
+            <Button variant={mode === 'text' ? 'default' : 'outline'} onClick={() => setMode('text')}><Type className="mr-2 h-4 w-4"/> Text</Button>
+            <Button variant="outline" size="icon" onClick={undoLast}><Undo2/></Button>
+            <Button variant="outline" size="icon" disabled={!selectedItemData && !selectedTextData} onClick={duplicateSelection}><Copy/></Button>
+            <Button variant="outline" size="icon" disabled={!selectedItemData && !selectedTextData} onClick={resetSelectionTransform}><RefreshCw/></Button>
+            <Button variant="outline" size="icon" disabled={!selectedItemData && !selectedTextData} onClick={deleteSelection}><Trash2/></Button>
+            <Button variant="outline" size="icon" onClick={() => { setLines([]); setShapes([]); setItems([]); setTexts([]); setSelectedItem(null); setSelectedText(null); }}><Eraser/></Button>
           </div>
           <ScrollArea className="w-full whitespace-nowrap">
             <div className="flex gap-2 p-1">
-              {mode === 'place' ? AVAILABLE_ITEMS.map(item => (
-                <div key={item.type} draggable onDragStart={(e) => handleItemDragStart(e, item.type)} onClick={() => setSelectedItemForPlacement(item.type)} className={cn("p-2 min-w-[72px] h-[72px] border rounded-lg flex flex-col items-center justify-center cursor-pointer transition-all", selectedItemForPlacement === item.type ? "bg-primary/20 ring-2 ring-primary" : "hover:bg-accent")}>
-                  <div className="relative w-8 h-8">{item.type === 'player' ? 'P' : item.type === 'enemy' ? 'E' : <Image src={iconMap[item.type]} alt={item.name} fill className="object-contain" unoptimized />}</div>
-                  <span className="text-[10px] mt-1 text-center truncate w-full">{item.name}</span>
-                </div>
-              )) : (
+              {mode === 'place' ? (
+                <>
+                  {AVAILABLE_ITEMS.map(item => (
+                    <div key={item.type} draggable onDragStart={(e) => handleItemDragStart(e, item.type)} onClick={() => setSelectedItemForPlacement(item.type)} className={cn("p-2 min-w-[72px] h-[72px] border rounded-lg flex flex-col items-center justify-center cursor-pointer transition-all", selectedItemForPlacement === item.type ? "bg-primary/20 ring-2 ring-primary" : "hover:bg-accent")}>
+                      <div className="relative w-8 h-8">{item.type === 'player' ? 'P' : item.type === 'enemy' ? 'E' : <Image src={iconMap[item.type]} alt={item.name} fill className="object-contain" unoptimized />}</div>
+                      <span className="text-[10px] mt-1 text-center truncate w-full">{item.name}</span>
+                    </div>
+                  ))}
+                  {selectedItemData && (
+                    <div className="flex min-w-[280px] items-center gap-3 rounded-lg border bg-muted/30 p-3">
+                      <span className="text-xs font-medium">Icon size</span>
+                      <Slider value={[selectedItemData.scale ?? 1]} onValueChange={([v]) => updateSelectedItemScale(v)} min={0.4} max={2.5} step={0.05} />
+                      <span className="w-10 text-right text-xs tabular-nums">{Math.round((selectedItemData.scale ?? 1) * 100)}%</span>
+                    </div>
+                  )}
+                </>
+              ) : mode === 'draw' ? (
                 <div className="flex items-center gap-4 p-2 bg-muted/30 rounded-lg w-full">
                   <div className="flex gap-1">
                     {(['freehand', 'rectangle', 'circle', 'arrow'] as DrawMode[]).map(m => (
@@ -332,6 +521,24 @@ export function KartographerClient({ initialLayouts }: KartographerClientProps) 
                     <SelectTrigger className="w-24 h-8"><SelectValue /></SelectTrigger>
                     <SelectContent><SelectItem value="none">Solid</SelectItem><SelectItem value="dashed">Dash</SelectItem><SelectItem value="dotted">Dot</SelectItem></SelectContent>
                   </Select>
+                </div>
+              ) : (
+                <div className="flex items-center gap-4 p-2 bg-muted/30 rounded-lg w-full">
+                  <Input value={textDraft} onChange={(e) => setTextDraft(e.target.value)} placeholder="Text to place" className="h-9 min-w-[220px]" />
+                  <Separator orientation="vertical" className="h-8"/>
+                  <Input type="color" value={textColor} onChange={(e) => setTextColor(e.target.value)} className="w-12 h-8 p-1 cursor-pointer" />
+                  <Separator orientation="vertical" className="h-8"/>
+                  <div className="flex min-w-[220px] items-center gap-2">
+                    <span className="text-xs">{selectedTextData ? selectedTextData.fontSize : textSize}px</span>
+                    <Slider
+                      value={[selectedTextData ? selectedTextData.fontSize : textSize]}
+                      onValueChange={([v]) => selectedTextData ? updateSelectedTextSize(v) : setTextSize(v)}
+                      min={12}
+                      max={72}
+                      step={1}
+                    />
+                  </div>
+                  <span className="text-xs text-muted-foreground">Click the map to place text. Drag text to move it.</span>
                 </div>
               )}
             </div>

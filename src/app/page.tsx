@@ -3,6 +3,38 @@ import { KartographerClient } from "@/components/kartographer-client";
 import fs from 'fs';
 import path from 'path';
 
+const mapDisplayNames: Record<string, string> = {
+  Acorn_Heights: "Acorn Heights",
+  Airship_Fortress: "Airship Fortress",
+  BooCinema: "Boo Cinema",
+  Bowsers_Caslte: "Bowser's Castle",
+  Cheep_Cheep_Falls: "Cheep Cheep Falls",
+  Choco_Mountain: "Choco Mountain",
+  Crown_City_Route: "Crown City Route",
+  DandelionDepths: "Dandelion Depths",
+  Desert_Hills: "Desert Hills",
+  Dino_Dino_Jungle: "Dino Dino Jungle",
+  DK_Pass: "DK Pass",
+  DK_Spaceport: "DK Spaceport",
+  Dry_Bones_Burnout: "Dry Bones Burnout",
+  Faraway_Oasis: "Faraway Oasis",
+  GreatQBlockRuins: "Great ? Block Ruins",
+  Koopa_Troopa_beach: "Koopa Troopa Beach",
+  MarioCircuit: "Mario Circuit",
+  MooMooMeadows: "Moo Moo Meadows",
+  Peach_Stadium: "Peach Stadium",
+  PeachBeach_Map: "Peach Beach",
+  Rainbow_Road: "Rainbow Road",
+  Salty_Salty_Speedway: "Salty Salty Speedway",
+  Shy_Guy_Bazaar: "Shy Guy Bazaar",
+  "Sky-High_Sundae": "Sky-High Sundae",
+  Starview_Peak: "Starview Peak",
+  ToadFactory: "Toad Factory",
+  Wario_Shipyard: "Wario Shipyard",
+  Wario_Stadium: "Wario Stadium",
+  Whistlestop_Summit: "Whistlestop Summit",
+};
+
 export default function Home() {
   const mapsDirectory = path.join(process.cwd(), 'src', 'components', 'Maps');
   let layoutObjects: { name: string; image: string; hint: string; }[] = [];
@@ -13,15 +45,18 @@ export default function Home() {
       layoutObjects = mapFiles
         .filter(file => /\.(png|jpg|jpeg|webp)$/i.test(file))
         .map(file => {
-          let displayName = file.replace(/\.[^/.]+$/, ""); 
+          const baseName = file.replace(/\.[^/.]+$/, "");
+          let displayName = mapDisplayNames[baseName] ?? baseName; 
 
           // Apply specific replacements for user-friendly names
-          displayName = displayName.replace(/^\d+px-/, ''); 
-          displayName = displayName.replace(/[_-]/g, ' '); 
-          displayName = displayName.replace(/MKWorld/g, '');
-          displayName = displayName.replace(/Map/g, ''); 
-          displayName = displayName.replace(/([a-z])([A-Z])/g, '$1 $2'); 
-          displayName = displayName.replace(/\s+/g, ' ').trim(); 
+          if (!mapDisplayNames[baseName]) {
+            displayName = displayName.replace(/^\d+px-/, ''); 
+            displayName = displayName.replace(/[_-]/g, ' '); 
+            displayName = displayName.replace(/MKWorld/g, '');
+            displayName = displayName.replace(/Map/g, ''); 
+            displayName = displayName.replace(/([a-z])([A-Z])/g, '$1 $2'); 
+            displayName = displayName.replace(/\s+/g, ' ').trim(); 
+          }
 
           const imagePath = path.join(mapsDirectory, file);
           const imageBuffer = fs.readFileSync(imagePath);
@@ -43,7 +78,8 @@ export default function Home() {
             image: dataUri,
             hint: displayName.toLowerCase(),
           };
-        });
+        })
+        .sort((a, b) => a.name.localeCompare(b.name));
     }
   } catch (error) {
     console.error("Could not read maps directory:", error);

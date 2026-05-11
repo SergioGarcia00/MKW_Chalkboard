@@ -1,0 +1,19 @@
+
+> nextn@0.1.0 dev
+> next dev --turbopack --hostname 127.0.0.1 --port 3000
+
+   ▲ Next.js 15.3.8 (Turbopack)
+   - Local:        http://127.0.0.1:3000
+   - Network:      http://127.0.0.1:3000
+
+ ✓ Starting...
+Creating turbopack project {
+  dir: 'C:\\Users\\sgbsa\\Desktop\\Kartographer mario kart world',
+  testMode: true
+}
+ ✓ Ready in 1109ms
+ ○ Compiling / ...
+ ✓ Compiled / in 2.4s
+ GET / 200 in 3215ms
+ GET / 200 in 382ms
+ GET / 200 in 222ms

@@ -33,6 +33,7 @@ export interface CanvasItem {
   x: number;
   y: number;
   rotation: number;
+  scale?: number;
 }
 
 export interface CanvasLine {
@@ -53,6 +54,16 @@ export interface CanvasShape {
     color: string;
     strokeWidth: number;
     strokeDasharray: string;
+}
+
+export interface CanvasText {
+  id: number;
+  text: string;
+  x: number;
+  y: number;
+  color: string;
+  fontSize: number;
+  rotation: number;
 }
 
     

@@ -19,9 +19,7 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  devIndicators: {
-    allowedDevOrigins: ['**'],
-  },
+  allowedDevOrigins: ['**'],
 };
 
 export default nextConfig;
